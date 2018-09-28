@@ -1,0 +1,16 @@
+The following services will need to be implemented:
+
+1. authorization
+
+1.1 create account with email & pass
+if user creates account with email
+1.1.1 validate email
+1.1.2 reset email
+
+1.2 create account with google
+
+2. authentication (login)
+
+3. attach Deezer
+
+4. attach Google account (if not attached by authorization)

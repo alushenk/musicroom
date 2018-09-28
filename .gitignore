@@ -1,0 +1,12 @@
+.idea/
+
+__pycache__/
+
+tunnels.json
+
+migrations/
+
+venv/
+
+postgres_data/
+redis_data/
