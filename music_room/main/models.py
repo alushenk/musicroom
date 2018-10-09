@@ -141,7 +141,7 @@ class Track(models.Model):
     # https://docs.djangoproject.com/en/2.0/ref/models/expressions/#f-expressions
     # from django.db.models import F
     # Statement.objects.filter(id__in=statements).update(vote=F('vote') + 1)
-    votes = models.IntegerField(blank=True, null=True)
+    # vote = models.IntegerField(blank=True, null=True)
 
     # все остальные поля можно сделать тупо геттерами, которые будут обращаться
     # к дизеру и брать от туда данные
@@ -152,7 +152,7 @@ class Track(models.Model):
         managed = True
         db_table = 'track'
 
-    def vote(self, track):
+    def to_vote(self, track):
         """
         добавить голос к определенному треку в плэйлисте
 
