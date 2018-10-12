@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+from music_room import settings
 
 
 class UserManager(BaseUserManager):
@@ -96,7 +97,7 @@ class Playlist(models.Model):
     # переименовывать плейлист
     # выставлять время и место
     # инвайтить новых юзеров (participants)
-    owners = models.ManyToManyField('User', db_table='playlist_owner', related_name='own_playlists')
+    owner = models.ForeignKey('User', null=True, related_name='own_playlists', on_delete=models.SET_NULL)
 
     class Meta:
         managed = True
