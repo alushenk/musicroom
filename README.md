@@ -1,6 +1,6 @@
 
 
-docker-compose.local.yml - для локального тестирования. сервис web запускается через ide
+
 
 
 django-admin startproject <name> .
@@ -9,10 +9,23 @@ django-admin startapp <name>
 cd ..
 
 
-python manage.py makemigrations
-python manage.py migrate
+полностью пересоздать базу:
+./reset.sh
 
-пиздонуть jwt авторизацию
-залить всё на гит
-добавить документацию / swagger
+docker-compose.local.yml - для локального тестирования. сервис web запускается через ide
+docker-compose.yml - для сервера, все сервисы внутри контейнеров
+
+поднять базу в докере:
+docker-compose -f docker-compose.local.yml up -d
+
+остановить базу в докере:
+docker-compose -f docker-compose.local.yml stop
+
+документация: http://localhost:8000/docs/
+надо поставить http://core-api.github.io/python-client/
+
+JWT:
+https://github.com/davesque/django-rest-framework-simplejwt
+
+
 

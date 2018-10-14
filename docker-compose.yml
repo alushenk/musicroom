@@ -1,0 +1,20 @@
+version: '3'
+services:
+  nginx-ssl-proxy:
+    image: danieldent/nginx-ssl-proxy
+    restart: always
+    environment:
+      UPSTREAM: 127.0.0.1:8000
+      SERVERNAME: ec2-54-93-227-166.eu-central-1.compute.amazonaws.com
+      EXTRANAMES: www.ec2-54-93-227-166.eu-central-1.compute.amazonaws.com
+    ports:
+    - "80:80"
+    - "443:443"
+    volumes:
+    - "/etc/letsencrypt"
+    - "./nginx.conf:/etc/nginx/main_location.conf"
+    - "./static/:/home/ubuntu/music_room/static/"
+volumes:
+  nginx:
+#  redis:
+#  code:
