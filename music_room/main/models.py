@@ -78,8 +78,10 @@ class Playlist(models.Model):
     не обязательна
     """
     is_public = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=False)
     # хуй знает в каком виде его хранить GPS координаты
     place = None
+    name = models.CharField(max_length=200, blank=False, null=False)
     time_from = models.DateTimeField(blank=True, null=True)
     time_to = models.DateTimeField(blank=True, null=True)
     # те кто заинвайчен в плэйлист
@@ -89,7 +91,7 @@ class Playlist(models.Model):
     # добавлять треки
     # перетаскивать треки
     # нажимать кнопку play
-    participants = models.ManyToManyField('User', db_table='playlist_participant', related_name='participate_playlists')
+    participants = models.ManyToManyField('User', blank=True, db_table='playlist_participant', related_name='participant_playlists')
     # те кто создали плэйлист
     # могут:
     # удалять треки
