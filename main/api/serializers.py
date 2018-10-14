@@ -1,12 +1,19 @@
 from rest_framework import serializers
-from music_room.main.models import User, Playlist, Track, Vote
+from main.models import User, Playlist, Track, Vote
 
 
 class UserSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = User
         fields = '__all__'
+
+    def create(self, validated_data):
+        user = User(
+            email=validated_data.get('email', None)
+        )
+        user.set_password(validated_data.get('password', None))
+        user.save()
+        return user
 
 
 class VoteListField(serializers.RelatedField):
@@ -24,7 +31,8 @@ class VoteSerializer(serializers.ModelSerializer):
 class TrackDetailSerializer(serializers.ModelSerializer):
     # votes = serializers.PrimaryKeyRelatedField(queryset=Vote.objects.get(track=).count())
     # votes = VoteSerializer(many=True, read_only=True)
-    votes = VoteListField(queryset=Track.objects.get(pk=1))
+
+    # votes = VoteListField(queryset=Track.objects.get(pk=1))
 
     class Meta:
         model = Track
@@ -36,14 +44,12 @@ class TrackDetailSerializer(serializers.ModelSerializer):
 
 
 class PlaylistSmallSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Playlist
         fields = ('is_public', 'place', "time_from", "time_to", "is_active")
 
 
 class PlaylistSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Playlist
         fields = ('__all__')
