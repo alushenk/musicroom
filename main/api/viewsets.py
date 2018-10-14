@@ -20,6 +20,10 @@ class UserViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
                                  'retrieve': UserSerializer}
 
 
+def get_track_order(track):
+    return track['order']
+
+
 class PlaylistViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
     queryset = Playlist.objects.all()
     serializer_class = PlaylistSerializer
@@ -29,7 +33,6 @@ class PlaylistViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
     def retrieve(self, request, *args, **kwargs):
         data = OrderedDict()
         participant_list = list()
-        track_info = dict()
         track_list = list()
 
         playlist = Playlist.objects.get(pk=kwargs['pk'])
@@ -38,12 +41,16 @@ class PlaylistViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
             participant_list.append(participant)
 
         for track in playlist.tracks.all():
+            track_info = dict()
             vote_counter = track.votes.all().count()
             track_info['id'] = track.id
             track_info['order'] = track.order
             track_info['votes_count'] = vote_counter
+            track_info['playlist'] = track.playlist
             track_list.append(track_info)
+        track_list = sorted(track_list, key=get_track_order)
 
+        data['name'] = playlist.name
         data['is_public'] = playlist.is_public
         data['is_active'] = playlist.is_active
         data['place'] = playlist.place
@@ -52,16 +59,18 @@ class PlaylistViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
         data['time_from'] = playlist.time_from
         data['owner'] = playlist.owner
         data['tracks'] = track_list
+        data['participants'] = participant_list
+
+        serializer = self.serializer_action_classes['retrieve'](data)
+        return Response(serializer.data)
 
     @action(methods=['PATCH'], detail=True, url_path='add_participant', url_name='add_participant')
     def add_participant(self, request, pk=None):
         playlist = self.queryset.get(pk=pk)
-        users_to_add = [User.objects.get(pk=id) for id in request.data['participants']]
-        print(users_to_add)
-        for user in users_to_add:
-            playlist.participants.set(user)
-            playlist.save()
-        return Response(status=status.HTTP_200_OK)
+        serializer = self.serializer_class(playlist, data={'participants': request.data['participants']}, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
 
 
 class TrackViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
