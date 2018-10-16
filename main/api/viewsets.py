@@ -9,7 +9,7 @@ from .serializers import UserSerializer,\
                             VoteSerializer,\
                             PlaylistDetailSerializer,\
                             PlaylistSmallSerializer
-from custom_utils import MultiSerializerViewSetMixin
+from custom_utils import MultiSerializerViewSetMixin, get_track_order
 from collections import OrderedDict
 
 
@@ -18,10 +18,6 @@ class UserViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
     serializer_class = UserSerializer
     serializer_action_classes = {'list': UserSerializer,
                                  'retrieve': UserSerializer}
-
-
-def get_track_order(track):
-    return track['order']
 
 
 class PlaylistViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):

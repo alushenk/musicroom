@@ -22,6 +22,13 @@ class VoteSerializer(serializers.ModelSerializer):
         model = Vote
         fields = "__all__"
 
+    def create(self, validated_data):
+        vote = Vote.objects.get(track_id=validated_data['track'].id, user_id=validated_data['user'].id)
+        if vote:
+            Vote.objects.delete(vote)
+        else:
+            return Vote.objects.create(**validated_data)
+
 
 class TrackDetailSerializer(serializers.ModelSerializer):
     votes_count = serializers.IntegerField(read_only=True)
