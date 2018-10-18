@@ -1,64 +1,77 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from music_room import settings
+# from django.contrib.auth.models import User
+
+# from django.contrib.auth import get_user_model
+#
+# User = get_user_model()
+from django.contrib.auth.models import AbstractUser
 
 
-class UserManager(BaseUserManager):
-    def create_user(self, email, password=None):
-        """
-        Creates and saves a User with the given email
-        """
-        if not email:
-            raise ValueError('Users must have an email address')
-
-        user = self.model(
-            email=self.normalize_email(email),
-        )
-
-        user.set_password(password)
-        user.save(using=self._db)
-        return user
-
-    def create_superuser(self, email, password):
-        """
-        Creates and saves a superuser with the given email
-        """
-        user = self.create_user(
-            email,
-            password=password,
-        )
-        user.is_staff = True
-        user.save(using=self._db)
-        return user
-
-
-class User(AbstractBaseUser):
-    """
-    (public) - чтобы его могли искать админы плэйлистов для добавления в participants
-    - login
-    - email
-    - pass
-    (restricted)
-    - playlist
-    (private)
-    - playlist
-    - friends
-    """
-    email = models.EmailField(
-        verbose_name='email address',
-        max_length=255,
-        unique=True,
-    )
-    is_staff = models.BooleanField(default=False)
-    is_active = models.BooleanField(default=True)
-
-    objects = UserManager()
-
-    USERNAME_FIELD = 'email'
-
+class User(AbstractUser):
     class Meta:
         managed = True
         db_table = 'user'
+
+
+# class UserManager(BaseUserManager):
+#     def create_user(self, email, password=None):
+#         """
+#         Creates and saves a User with the given email
+#         """
+#         if not email:
+#             raise ValueError('Users must have an email address')
+#
+#         user = self.model(
+#             email=self.normalize_email(email),
+#         )
+#
+#         user.set_password(password)
+#         user.save(using=self._db)
+#         return user
+#
+#     def create_superuser(self, email, password):
+#         """
+#         Creates and saves a superuser with the given email
+#         """
+#         user = self.create_user(
+#             email,
+#             password=password,
+#         )
+#         user.is_staff = True
+#         user.save(using=self._db)
+#         return user
+#
+#
+# class User(AbstractBaseUser):
+#     """
+#     (public) - чтобы его могли искать админы плэйлистов для добавления в participants
+#     - login
+#     - email
+#     - pass
+#     (restricted)
+#     - playlist
+#     (private)
+#     - playlist
+#     - friends
+#     """
+#     email = models.EmailField(
+#         verbose_name='email address',
+#         max_length=255,
+#         unique=True,
+#     )
+#     is_staff = models.BooleanField(default=False)
+#     is_active = models.BooleanField(default=True)
+#     # date_joined = models.DateTimeField(blank=True, null=True)
+#
+#     objects = UserManager()
+#
+#     USERNAME_FIELD = 'email'
+#
+#     class Meta:
+#         managed = True
+#         db_table = 'user'
 
 
 class Playlist(models.Model):
@@ -91,7 +104,8 @@ class Playlist(models.Model):
     # добавлять треки
     # перетаскивать треки
     # нажимать кнопку play
-    participants = models.ManyToManyField('User', blank=True, db_table='playlist_participant', related_name='participant_playlists')
+    participants = models.ManyToManyField('User', blank=True, db_table='playlist_participant',
+                                          related_name='participant_playlists')
     # те кто создали плэйлист
     # могут:
     # удалять треки
@@ -139,6 +153,7 @@ class Track(models.Model):
     # хуй знает в каком формате хранить
     # возможно домен и часть url будет браться из конфига, а здесь только id
     link = None
+
     # это поле будет инкрементиться или дикрементиться
     # юзер не может поставить больше одного лайка, поэтому надо где-то хранить лайкнутые треки
     # https://docs.djangoproject.com/en/2.0/ref/models/expressions/#f-expressions
@@ -176,7 +191,8 @@ class Vote(models.Model):
     их порядка в плейлисте.
     """
     track = models.ForeignKey(Track, on_delete=models.CASCADE, blank=True, null=True, related_name='votes')
-    user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True, related_name='votes')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True,
+                             related_name='votes')
 
     class Meta:
         managed = True

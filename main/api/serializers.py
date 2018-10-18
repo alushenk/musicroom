@@ -7,14 +7,15 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = '__all__'
+        # fields = ('email', 'password')
 
-    def create(self, validated_data):
-        user = User(
-            email=validated_data.get('email', None)
-        )
-        user.set_password(validated_data.get('password', None))
-        user.save()
-        return user
+    # def create(self, validated_data):
+    #     user = User(
+    #         email=validated_data.get('email', None)
+    #     )
+    #     user.set_password(validated_data.get('password', None))
+    #     user.save()
+    #     return user
 
 
 class VoteSerializer(serializers.ModelSerializer):

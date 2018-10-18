@@ -27,5 +27,6 @@ docker-compose -f docker-compose.local.yml stop
 JWT:
 https://github.com/davesque/django-rest-framework-simplejwt
 
+psycopg2 не нужен потому что в джанге2 django.db.backends.postgresql
 
 

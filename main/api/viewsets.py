@@ -2,22 +2,52 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import csrf_exempt
+# from ..models import User, Playlist, Track, Vote
 from ..models import User, Playlist, Track, Vote
-from .serializers import UserSerializer,\
-                            PlaylistSerializer, \
-                            TrackDetailSerializer, \
-                            VoteSerializer,\
-                            PlaylistDetailSerializer,\
-                            PlaylistSmallSerializer
+from .serializers import \
+    UserSerializer, \
+    PlaylistSerializer, \
+    TrackDetailSerializer, \
+    VoteSerializer, \
+    PlaylistDetailSerializer, \
+    PlaylistSmallSerializer
 from custom_utils import MultiSerializerViewSetMixin
 from collections import OrderedDict
+from rest_framework.permissions import IsAuthenticated
+
+from rest_framework.permissions import AllowAny
+from .permissions import IsStaffOrTargetUser
+
+from allauth.socialaccount.providers.facebook.views import FacebookOAuth2Adapter
+from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
+from rest_auth.registration.views import SocialLoginView
+from allauth.socialaccount.providers.oauth2.client import OAuth2Client
+
+
+class FacebookLogin(SocialLoginView):
+    adapter_class = FacebookOAuth2Adapter
+
+
+class GoogleLogin(SocialLoginView):
+    adapter_class = GoogleOAuth2Adapter
+    client_class = OAuth2Client
+    callback_url = 'https://test-bot.morbax.com/'
+
+    # @action(methods=['GET'], detail=True, url_name='oauth_callback', url_path='oauth_callback')
+    # def callback_url(self, request):
+    #     print(request.data)
 
 
 class UserViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
+    # permission_classes = (IsAuthenticated,)
     queryset = User.objects.all()
     serializer_class = UserSerializer
     serializer_action_classes = {'list': UserSerializer,
                                  'retrieve': UserSerializer}
+
+    def get_permissions(self):
+        # allow non-authenticated user to create via POST
+        return (AllowAny() if self.request.method == 'POST' else IsStaffOrTargetUser()),
 
 
 def get_track_order(track):
@@ -25,6 +55,7 @@ def get_track_order(track):
 
 
 class PlaylistViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
+    permission_classes = (IsAuthenticated,)
     queryset = Playlist.objects.all()
     serializer_class = PlaylistSerializer
     serializer_action_classes = {'list': PlaylistSmallSerializer,

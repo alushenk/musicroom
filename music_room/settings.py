@@ -32,14 +32,57 @@ ALLOWED_HOSTS = ['localhost',
 
 INSTALLED_APPS = [
     'django.contrib.admin',
+
     'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
     'django.contrib.messages',
+    'django.contrib.sites',
+    'django.contrib.contenttypes',
+    # для авторизации в админке
+    'django.contrib.sessions',
     'django.contrib.staticfiles',
+
+    # pip install django-cors-headers
+    # https://github.com/ottoyiu/django-cors-headers
+    # чтобы при логине через сессию (который не нужен ибо делаем JWT)
+    # не было ошибки "CSRF Failed: CSRF token missing or incorrect"
+    # нужен для админки
+    'corsheaders',
+
     'rest_framework',
+    'rest_framework.authtoken',  # only if you use token authentication
+    # 'social_django',  # django social auth
+    # 'rest_social_auth',  # this package
+    # 'knox',  # Only if you use django-rest-knox
+
+    # 'oauth2_provider',
+    # 'rest_framework_social_oauth2',
+
+    'rest_auth',
+    'rest_auth.registration',
+
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.facebook',
+    'allauth.socialaccount.providers.google',
+
     'main',
 ]
+
+SITE_ID = 1
+
+# SOCIAL_AUTH_RAISE_EXCEPTIONS = True
+# SOCIAL_AUTH_URL_NAMESPACE = 'social'
+#
+# SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '205782653310-fjjullvs7cklq6su4qp0o7e8def79vfg.apps.googleusercontent.com'
+# SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'sMv5Xrje1aP_f__HS3g3Jt2B'
+# SOCIAL_AUTH_GOOGLE_OAUTH2_FIELDS = ['email', 'username']  # optional
+#
+# SOCIAL_AUTH_FACEBOOK_KEY = 'your app client id'
+# SOCIAL_AUTH_FACEBOOK_SECRET = 'your app client secret'
+
+# CSRF_COOKIE_SECURE = True
+# CORS_ORIGIN_ALLOW_ALL = True
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -54,20 +97,47 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'music_room.urls'
 
 TEMPLATES = [
+    # {
+    #     'BACKEND': 'django.template.backends.django.DjangoTemplates',
+    #     'DIRS': [],
+    #     'APP_DIRS': True,
+    #     'OPTIONS': {
+    #         'context_processors': [
+    #             'django.template.context_processors.debug',
+    #             'django.template.context_processors.request',
+    #             'django.contrib.auth.context_processors.auth',
+    #             'django.contrib.messages.context_processors.messages',
+    #         ],
+    #     },
+    # },
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
+                # Already defined Django-related contexts here
                 'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+
+                # `allauth` needs this from django
+                'django.template.context_processors.request',
             ],
         },
-    },
+    }
 ]
+
+AUTHENTICATION_BACKENDS = (
+    # 'social_core.backends.facebook.FacebookOAuth2',
+    # 'social_core.backends.google.GoogleOAuth2',
+    # 'rest_framework_social_oauth2.backends.DjangoOAuth2',
+    # 'django.contrib.auth.backends.ModelBackend',
+
+    # Needed to login by username in Django admin, regardless of `allauth`
+    'django.contrib.auth.backends.ModelBackend',
+
+    # `allauth` specific authentication methods, such as login by e-mail
+    'allauth.account.auth_backends.AuthenticationBackend',
+)
 
 WSGI_APPLICATION = 'music_room.wsgi.application'
 
@@ -75,7 +145,7 @@ WSGI_APPLICATION = 'music_room.wsgi.application'
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 
 DATABASES = {
-    'default': {'ENGINE': 'django.db.backends.postgresql_psycopg2',
+    'default': {'ENGINE': 'django.db.backends.postgresql',
                 'NAME': 'postgres',
                 'USER': 'postgres',
                 'PASSWORD': None,
@@ -120,33 +190,47 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ),
+    # 'DEFAULT_AUTHENTICATION_CLASSES': (
+    #     'rest_framework_simplejwt.authentication.JWTAuthentication',
+    # ),
+    # 'DEFAULT_AUTHENTICATION_CLASSES': ('knox.auth.TokenAuthentication',),
 }
 
-from datetime import timedelta
+# from datetime import timedelta
+#
+# REST_KNOX = {
+#     'SECURE_HASH_ALGORITHM': 'cryptography.hazmat.primitives.hashes.SHA512',
+#     'AUTH_TOKEN_CHARACTER_LENGTH': 64,
+#     'TOKEN_TTL': timedelta(hours=10),
+#     # 'USER_SERIALIZER': 'knox.serializers.UserSerializer',
+#     'USER_SERIALIZER': 'main.serializers.UserSerializer',
+# }
 
-SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(days=365),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
-    'ROTATE_REFRESH_TOKENS': True,
-    'BLACKLIST_AFTER_ROTATION': True,
-
-    'ALGORITHM': 'HS256',
-    'SIGNING_KEY': SECRET_KEY,
-    'VERIFYING_KEY': None,
-
-    'AUTH_HEADER_TYPES': ('Bearer',),
-    'USER_ID_FIELD': 'id',
-    'USER_ID_CLAIM': 'user_id',
-
-    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
-    'TOKEN_TYPE_CLAIM': 'token_type',
-
-    'SLIDING_TOKEN_REFRESH_EXP_CLAIM': 'refresh_exp',
-    'SLIDING_TOKEN_LIFETIME': timedelta(minutes=5),
-    'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
-}
+# from datetime import timedelta
+#
+# SIMPLE_JWT = {
+#     'ACCESS_TOKEN_LIFETIME': timedelta(days=365),
+#     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+#     'ROTATE_REFRESH_TOKENS': True,
+#     'BLACKLIST_AFTER_ROTATION': True,
+#
+#     'ALGORITHM': 'HS256',
+#     'SIGNING_KEY': SECRET_KEY,
+#     'VERIFYING_KEY': None,
+#
+#     'AUTH_HEADER_TYPES': ('Bearer',),
+#     'USER_ID_FIELD': 'id',
+#     'USER_ID_CLAIM': 'user_id',
+#
+#     'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
+#     'TOKEN_TYPE_CLAIM': 'token_type',
+#
+#     'SLIDING_TOKEN_REFRESH_EXP_CLAIM': 'refresh_exp',
+#     'SLIDING_TOKEN_LIFETIME': timedelta(minutes=5),
+#     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
+# }
 
 AUTH_USER_MODEL = 'main.User'
+
+# GOOGLE_CLIENT_ID = '205782653310-fjjullvs7cklq6su4qp0o7e8def79vfg.apps.googleusercontent.com'
+# GOOGLE_CLIENT_SECRET = 'sMv5Xrje1aP_f__HS3g3Jt2B'
