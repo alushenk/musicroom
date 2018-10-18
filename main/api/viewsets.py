@@ -19,6 +19,10 @@ class UserViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
     serializer_action_classes = {'list': UserSerializer,
                                  'retrieve': UserSerializer}
 
+    @action(methods=['GET'], detail=False, url_path='user_search', url_name='user_search')
+    def user_search(self, request):
+        print(request)
+
 
 class PlaylistViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
     queryset = Playlist.objects.all()
@@ -81,3 +85,13 @@ class VoteViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
     serializer_class = VoteSerializer
     serializer_action_classes = {'list': VoteSerializer,
                                  'retrieve': VoteSerializer}
+
+    def perform_create(self, serializer):
+        data = dict()
+        data['track'] = Track.objects.get(id=self.request.data['track'])
+        data['user'] = User.objects.get(id=self.request.data['user'])
+        try:
+            serializer.save(track=data['track'], user=data['user'])
+        except:
+            serializer.data['status'] = "Instace deleted"
+            print(serializer.data)
