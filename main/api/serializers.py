@@ -3,7 +3,6 @@ from main.models import User, Playlist, Track, Vote
 
 
 class UserSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = User
         fields = '__all__'
@@ -21,7 +20,7 @@ class UserSerializer(serializers.ModelSerializer):
 class VoteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Vote
-        fields = "__all__"
+        fields = ('track',)
 
 
 class TrackDetailSerializer(serializers.ModelSerializer):
@@ -34,17 +33,15 @@ class TrackDetailSerializer(serializers.ModelSerializer):
 
 
 class PlaylistSmallSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Playlist
         fields = ('is_public', 'place', "time_from", "time_to", "is_active")
 
 
 class PlaylistSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Playlist
-        fields = '__all__'
+        fields = ('name', 'is_public', 'is_active', 'place', 'time_from', 'time_to', 'participants')
 
 
 class PlaylistDetailSerializer(serializers.ModelSerializer):

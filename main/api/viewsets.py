@@ -13,9 +13,7 @@ from .serializers import \
     PlaylistSmallSerializer
 from custom_utils import MultiSerializerViewSetMixin
 from collections import OrderedDict
-from rest_framework.permissions import IsAuthenticated
-
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from .permissions import IsStaffOrTargetUser
 
 from allauth.socialaccount.providers.facebook.views import FacebookOAuth2Adapter
@@ -61,6 +59,9 @@ class PlaylistViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
     serializer_action_classes = {'list': PlaylistSmallSerializer,
                                  'retrieve': PlaylistDetailSerializer}
 
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
+
     def retrieve(self, request, *args, **kwargs):
         data = OrderedDict()
         participant_list = list()
@@ -105,6 +106,7 @@ class PlaylistViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
 
 
 class TrackViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
+    permission_classes = (IsAuthenticated,)
     queryset = Track.objects.all()
     serializer_class = TrackDetailSerializer
     serializer_action_classes = {'list': TrackDetailSerializer,
@@ -112,7 +114,11 @@ class TrackViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
 
 
 class VoteViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
+    permission_classes = (IsAuthenticated,)
     queryset = Vote.objects.all()
     serializer_class = VoteSerializer
     serializer_action_classes = {'list': VoteSerializer,
                                  'retrieve': VoteSerializer}
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
