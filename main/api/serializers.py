@@ -6,7 +6,6 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = '__all__'
-        # fields = ('email', 'password')
 
     # def create(self, validated_data):
     #     user = User(
@@ -18,9 +17,19 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class VoteSerializer(serializers.ModelSerializer):
+    status = serializers.CharField(max_length=150, required=False)
+
     class Meta:
         model = Vote
-        fields = ('track',)
+        fields = ("id", "track", "user", "status")
+
+    def create(self, validated_data):
+        try:
+            vote = Vote.objects.get(track_id=validated_data['track'].id, user_id=validated_data['user'].id)
+            vote.delete()
+            return None
+        except:
+            return Vote.objects.create(**validated_data)
 
 
 class TrackDetailSerializer(serializers.ModelSerializer):

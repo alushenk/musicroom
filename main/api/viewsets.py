@@ -2,7 +2,6 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import csrf_exempt
-# from ..models import User, Playlist, Track, Vote
 from ..models import User, Playlist, Track, Vote
 from .serializers import \
     UserSerializer, \
@@ -13,6 +12,7 @@ from .serializers import \
     PlaylistSmallSerializer
 from custom_utils import MultiSerializerViewSetMixin
 from collections import OrderedDict
+from django.db.models import Max
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from .permissions import IsStaffOrTargetUser
 
@@ -97,6 +97,13 @@ class UserViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
     serializer_action_classes = {'list': UserSerializer,
                                  'retrieve': UserSerializer}
 
+    @action(methods=['GET'], detail=False, url_path='user_search', url_name='user_search')
+    def user_search(self, request):
+        """Needs a request like: http://localhost:8000/api/users/user_search/?name=abc"""
+        queryset = User.objects.all().filter(name__icontains=request.query_params['name']).order_by('name')
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data)
+
     def get_permissions(self):
         # allow non-authenticated user to create via POST
         return (AllowAny() if self.request.method == 'POST' else IsStaffOrTargetUser()),
@@ -166,6 +173,13 @@ class TrackViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
     serializer_action_classes = {'list': TrackDetailSerializer,
                                  'retrieve': TrackDetailSerializer}
 
+    def perform_create(self, serializer):
+        data = dict()
+        data['playlist'] = Playlist.objects.get(id=self.request.data['playlist'])
+        last_order = Track.objects.all().filter(playlist=data['playlist']).aggregate(Max('order'))
+        data['order'] = last_order['order__max'] + 1
+        serializer.save(**data)
+
 
 class VoteViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated,)
@@ -175,4 +189,10 @@ class VoteViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
                                  'retrieve': VoteSerializer}
 
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+        data = dict()
+        data['track'] = Track.objects.get(id=self.request.data['track'])
+        try:
+            serializer.save(track=data['track'], user=self.request.user)
+        except:
+            serializer.data['status'] = "Instace deleted"
+            print(serializer.data)
