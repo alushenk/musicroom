@@ -11,6 +11,7 @@ from .serializers import UserSerializer,\
                             PlaylistSmallSerializer
 from custom_utils import MultiSerializerViewSetMixin, get_track_order
 from collections import OrderedDict
+from django.db.models import Max
 
 
 class UserViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
@@ -21,7 +22,10 @@ class UserViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
 
     @action(methods=['GET'], detail=False, url_path='user_search', url_name='user_search')
     def user_search(self, request):
-        print(request)
+        """Needs a request like: http://localhost:8000/api/users/user_search/?name=abc"""
+        queryset = User.objects.all().filter(name__icontains=request.query_params['name']).order_by('name')
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data)
 
 
 class PlaylistViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
@@ -29,6 +33,7 @@ class PlaylistViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
     serializer_class = PlaylistSerializer
     serializer_action_classes = {'list': PlaylistSmallSerializer,
                                  'retrieve': PlaylistDetailSerializer}
+
 
     def retrieve(self, request, *args, **kwargs):
         data = OrderedDict()
@@ -78,6 +83,13 @@ class TrackViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
     serializer_class = TrackDetailSerializer
     serializer_action_classes = {'list': TrackDetailSerializer,
                                  'retrieve': TrackDetailSerializer}
+
+    def perform_create(self, serializer):
+        data = dict()
+        data['playlist'] = Playlist.objects.get(id=self.request.data['playlist'])
+        last_order = Track.objects.all().filter(playlist=data['playlist']).aggregate(Max('order'))
+        data['order'] = last_order['order__max'] + 1
+        serializer.save(**data)
 
 
 class VoteViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):

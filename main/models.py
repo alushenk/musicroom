@@ -1,6 +1,5 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
-from music_room import settings
 
 
 class UserManager(BaseUserManager):
@@ -51,6 +50,7 @@ class User(AbstractBaseUser):
     )
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
+    name = models.CharField(null=True, max_length=100)
 
     objects = UserManager()
 
@@ -105,17 +105,6 @@ class Playlist(models.Model):
         managed = True
         db_table = 'playlist'
 
-    def add_track(self, link):
-        """
-        добавить новый трек в конец плейлиста
-
-        могут все юзеры если self.is_public == True
-        :return:
-        """
-        available_tracks_count = len(self.tracks.all())
-        track = Track(link=link, playlist=self, order=available_tracks_count)
-        track.save()
-
     def play(self):
         """
         начинает проигрывать треки отсортированные по Votes
@@ -134,7 +123,7 @@ class Track(models.Model):
     playlist = models.ForeignKey(Playlist, on_delete=models.CASCADE, blank=True, null=True, related_name='tracks')
     # при перетягивании треков юзер будет отправлять одним махом сразу все order'ы
     # всех треков в плэйлисте
-    order = models.SmallIntegerField()
+    order = models.IntegerField(default=1)
     # ссылка на трек в deezer api
     # хуй знает в каком формате хранить
     # возможно домен и часть url будет браться из конфига, а здесь только id
@@ -145,7 +134,6 @@ class Track(models.Model):
     # from django.db.models import F
     # Statement.objects.filter(id__in=statements).update(vote=F('vote') + 1)
     # vote = models.IntegerField(blank=True, null=True)
-
     # все остальные поля можно сделать тупо геттерами, которые будут обращаться
     # к дизеру и брать от туда данные
     # можно прописать здесь или в сериализаторе логику которая разом достаёт все поля
@@ -154,19 +142,6 @@ class Track(models.Model):
     class Meta:
         managed = True
         db_table = 'track'
-
-    def to_vote(self, track):
-        """
-        добавить голос к определенному треку в плэйлисте
-
-        могут все если self.playlist.is_public == True
-        :return:
-        """
-        vote = Vote(track=track)
-        vote.save()
-
-    def remove(self):
-        pass
 
 
 class Vote(models.Model):
