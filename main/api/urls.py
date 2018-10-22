@@ -1,5 +1,6 @@
 from django.urls import path, include
-from .viewsets import UserViewSet, PlaylistViewSet, TrackViewSet, VoteViewSet, FacebookLogin, GoogleLogin
+from .viewsets import UserViewSet, PlaylistViewSet, TrackViewSet, VoteViewSet, FacebookLogin, GoogleLogin, callback_url, \
+    login_url
 from rest_framework.routers import DefaultRouter
 from django.conf.urls import url
 from rest_framework.documentation import include_docs_urls
@@ -21,6 +22,9 @@ from rest_auth.registration.views import (
     SocialAccountListView, SocialAccountDisconnectView
 )
 
+from rest_framework_jwt.views import obtain_jwt_token
+from rest_framework_jwt.views import refresh_jwt_token
+
 urlpatterns = [
     path('api/', include(router.urls)),
     url(r'^docs/', include_docs_urls(title='Music room')),
@@ -32,18 +36,24 @@ urlpatterns = [
     # url(r'^api/login/', include('rest_social_auth.urls_jwt'))
     # url(r'^api/login/', include('rest_social_auth.urls_knox')),
 
-    url(r'^rest-auth/', include('rest_auth.urls')),
-    url(r'^rest-auth/registration/', include('rest_auth.registration.urls')),
-    url(r'^rest-auth/facebook/$', FacebookLogin.as_view(), name='fb_login'),
-    url(r'^rest-auth/google/$', GoogleLogin.as_view(), name='gg_login'),
+    url(r'^auth/', include('rest_auth.urls')),
+    url(r'^auth/registration/', include('rest_auth.registration.urls')),
+    url(r'^auth/facebook/$', FacebookLogin.as_view(), name='fb_login'),
+    url(r'^auth/google/$', GoogleLogin.as_view(), name='gg_login'),
+    path('auth/google/callback/', callback_url),
+    path('auth/google/url/', login_url),
+    url(r'^auth/token/', obtain_jwt_token),
+    url(r'^auth/token-refresh/', refresh_jwt_token),
     url(
-        r'^socialaccounts/$',
+        r'^auth/socialaccounts/$',
         SocialAccountListView.as_view(),
         name='social_account_list'
     ),
     url(
-        r'^socialaccounts/(?P<pk>\d+)/disconnect/$',
+        r'^auth/socialaccounts/(?P<pk>\d+)/disconnect/$',
         SocialAccountDisconnectView.as_view(),
         name='social_account_disconnect'
-    )
+    ),
+
+    # url(r'^accounts/', include('allauth.urls')),
 ]

@@ -20,6 +20,53 @@ from allauth.socialaccount.providers.facebook.views import FacebookOAuth2Adapter
 from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
 from rest_auth.registration.views import SocialLoginView
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
+from rest_framework.decorators import api_view
+from rest_framework.reverse import reverse
+from django.http import JsonResponse
+from rest_framework.response import Response
+from rest_framework.decorators import authentication_classes, permission_classes
+from django.shortcuts import redirect
+
+
+@api_view(['GET'])
+# @authentication_classes([])
+# @permission_classes([])
+def callback_url(request, **kwargs):
+    print(request.data)
+    print(kwargs)
+    code = request.GET['code']
+    # code = kwargs['code']
+    return JsonResponse({'code': code})
+
+
+import unicodedata
+
+
+@api_view(['GET'])
+def login_url(request, **kwargs):
+    from requests_oauthlib import OAuth2Session
+
+    client_id = '205782653310-fjjullvs7cklq6su4qp0o7e8def79vfg.apps.googleusercontent.com'
+    redirect_uri = 'https://test-bot.morbax.com/rest-auth/google/callback/'
+
+    authorization_base_url = 'https://accounts.google.com/o/oauth2/v2/auth'
+    scope = [
+        "https://www.googleapis.com/auth/userinfo.email",
+        "https://www.googleapis.com/auth/userinfo.profile"
+    ]
+
+    oauth = OAuth2Session(client_id, scope=scope, redirect_uri=redirect_uri)
+
+    # redirect user to google for authorization
+    authorization_url, state = oauth.authorization_url(authorization_base_url, access_type='offline',
+                                                       prompt='select_account')
+    # u = str(authorization_url).replace('&amp', ';')
+    # print(u)
+    # print('aaaaaaa', unicodedata.normalize('NFKC', authorization_url))
+    print(authorization_url)
+    # return JsonResponse(data={'google_url': authorization_url, 'huy': 'https://huy.morbax.com'})
+    # return JsonResponse({'google_url': authorization_url, 'huy': 'https://huy.morbax.com'})
+    return Response({"google_url": authorization_url})
 
 
 class FacebookLogin(SocialLoginView):
@@ -29,11 +76,18 @@ class FacebookLogin(SocialLoginView):
 class GoogleLogin(SocialLoginView):
     adapter_class = GoogleOAuth2Adapter
     client_class = OAuth2Client
-    callback_url = 'https://test-bot.morbax.com/'
+    # callback_url = 'https://test-bot.morbax.com/accounts/google/login/callback/'
+    callback_url = 'https://test-bot.morbax.com/rest-auth/google/callback/'
 
     # @action(methods=['GET'], detail=True, url_name='oauth_callback', url_path='oauth_callback')
     # def callback_url(self, request):
     #     print(request.data)
+
+    # @action(methods=['GET'], detail=False, url_name='/rest-auth/google/callback/',
+    #         url_path='/rest-auth/google/callback/')
+    # def callback_url(self, request, **kwargs):
+    #     code = kwargs['code']
+    #     return {'code': code}
 
 
 class UserViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):

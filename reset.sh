@@ -8,4 +8,4 @@ ${PYTHON} manage.py makemigrations
 
 ${PYTHON} manage.py migrate # bot_main
 
-#${PYTHON}  manage.py add_content
+${PYTHON}  manage.py add_content
