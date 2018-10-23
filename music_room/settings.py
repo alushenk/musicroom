@@ -27,7 +27,8 @@ DEBUG = True
 ALLOWED_HOSTS = ['localhost',
                  '127.0.0.1',
                  'ec2-54-93-227-166.eu-central-1.compute.amazonaws.com',
-                 'test-bot.morbax.com']
+                 'test-bot.morbax.com',
+                 'musicroom.ml']
 
 # Application definition
 
@@ -150,7 +151,7 @@ DATABASES = {
                 'NAME': 'postgres',
                 'USER': 'postgres',
                 'PASSWORD': None,
-                'HOST': 'localhost',
+                'HOST': 'db',
                 'PORT': '5432'}
 }
 
@@ -184,11 +185,6 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/2.1/howto/static-files/
-
-STATIC_URL = '/static/'
 
 REST_FRAMEWORK = {
     # 'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -286,3 +282,29 @@ JWT_AUTH = {
 }
 
 LOGIN_REDIRECT_URL = '/rest-auth/login/'
+
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/2.1/howto/static-files/
+
+STATIC_URL = '/static/'
+PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+STATIC_ROOT = os.path.join(PROJECT_ROOT, 'static')
+
+# STATIC_ROOT = '/home/django/django_project/django_project/static'
+
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'static'),
+)
+
+import sys
+
+LOGGING = {
+    'version': 1,
+    'handlers': {
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'stream': sys.stdout
+        },
+    }
+}

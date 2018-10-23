@@ -1,20 +1,64 @@
 version: '3'
 services:
-    nginx-ssl-proxy:
-      image: danieldent/nginx-ssl-proxy
-      restart: always
-      environment:
-        UPSTREAM: 127.0.0.1:8000
-        SERVERNAME: musicroom.morbax.com
-#        EXTRANAMES: www.musicroom.morbax.com
-      ports:
-      - "80:80"
-      - "443:443"
-      - "8000:8000"
-      volumes:
-      - "/etc/letsencrypt"
-      - "./nginx.conf:/etc/nginx/main_location.conf"
-      - "./static/:/home/ubuntu/music_room/static/"
+  nginx-proxy:
+    image: danieldent/nginx-ssl-proxy
+    restart: always
+    environment:
+      UPSTREAM: web:8000
+      SERVERNAME: musicroom.ml
+    ports:
+    - "80:80"
+    - "443:443"
+    volumes:
+    - "/etc/letsencrypt"
+    - "static-volume:/static"
+    - "./nginx.conf:/etc/nginx/main_location.conf"
+
+
+  #    - "music_room/static:music_room/static"
+  #    - "code"
+  #    - "code:/code"
+  #    - "./static/:/home/ubuntu/music_room/static"
+
+
+  #  nginx-proxy:
+  #    image: jwilder/nginx-proxy
+  #    ports:
+  #    - "80:80"
+  #    - "443:443"
+  #    volumes:
+  #    - /var/run/docker.sock:/tmp/docker.sock:ro
+  #    environment:
+  #    - VIRTUAL_PROTO=https
+  #    - VIRTUAL_PORT=443
+  web:
+    restart: unless-stopped
+    build: .
+    #    command: python3 manage.py runserver 0.0.0.0:8000
+    ports:
+    - "8000:8000"
+    depends_on:
+    - db
+    - nginx-proxy
+    #    environment:
+    #    - VIRTUAL_HOST=musicroom.ml
+    volumes:
+    #    - "static-volume:/code"
+    - "static-volume:/code/music_room/static"
+  db:
+    restart: unless-stopped
+    image: postgres:alpine
+    volumes:
+    - "postgres-data:/var/lib/postgresql/data"
+    ports:
+    - "5432:5432"
+#    redis:
+#      restart: unless-stopped
+#      image: redis:alpine
+#      volumes:
+#      - 'redis-data:/data'
+#      ports:
+#      - "6379:6379"
 #  nginx:
 #    image: nginx:latest
 #    container_name: production_nginx
@@ -27,6 +71,8 @@ services:
 #    - 80:80
 #    - 443:443
 volumes:
-  nginx:
+  nginx-proxy:
+  postgres-data:
+  static-volume:
 #  redis:
 #  code:

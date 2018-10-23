@@ -21,7 +21,7 @@ class Command(BaseCommand):
                          secret='sMv5Xrje1aP_f__HS3g3Jt2B')
 
         site = Site.objects.get()
-        site.domain = 'musicroom.morbax.com'
+        site.domain = 'musicroom.ml'
         site.name = 'musicroom'
         site.save()
 

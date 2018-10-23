@@ -47,7 +47,7 @@ def login_url(request, **kwargs):
     from requests_oauthlib import OAuth2Session
 
     client_id = '205782653310-fjjullvs7cklq6su4qp0o7e8def79vfg.apps.googleusercontent.com'
-    redirect_uri = 'https://test-bot.morbax.com/rest-auth/google/callback/'
+    redirect_uri = 'https://musicroom.ml/rest-auth/google/callback/'
 
     authorization_base_url = 'https://accounts.google.com/o/oauth2/v2/auth'
     scope = [

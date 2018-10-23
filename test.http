@@ -1,0 +1,20 @@
+### обычная регистрация
+
+POST https://musicroom.ml/auth/registration/?username=suka&email=suka@gmail.com&password1=q12we34rt56y&password2=q12we34rt56y
+
+### вводите сюда логин и пароль - получаете в ответ токен
+
+#POST https://musicroom.ml/auth/token/?username=suka&email=suka@gmail.com&password=q12we34rt56y
+POST https://musicroom.ml/auth/token/?username=a&email=a@a.com&password=a
+
+### с токеном можно ходить по защищенным урлам
+
+GET https://musicroom.ml/auth/user
+Authorization: JWT eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxLCJ1c2VybmFtZSI6ImEiLCJleHAiOjE1NDAzMTIzMDIsImVtYWlsIjoiIn0.Sygqlv4ObWgULEK767VAZcWXPEEVhlaMg8zE2SfBa9s
+
+###
+
+GET https://musicroom.ml/auth/google/url
+Authorization: JWT eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxLCJ1c2VybmFtZSI6ImEiLCJleHAiOjE1NDAzMTIzMDIsImVtYWlsIjoiIn0.Sygqlv4ObWgULEK767VAZcWXPEEVhlaMg8zE2SfBa9s
+
+###
