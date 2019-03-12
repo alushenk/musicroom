@@ -14,17 +14,17 @@ touch /srv/logs/access.log
 tail -n 0 -f /srv/logs/*.log &
 
 # Start Gunicorn processes
-echo Starting Gunicorn.
-exec gunicorn music_room.wsgi:application \
-    --name musicroom \
-    --bind 0.0.0.0:8000 \
-    --workers 3 \
-    --log-level=info \
-    --log-file=/srv/logs/gunicorn.log \
-    --access-logfile=/srv/logs/access.log \
-    "$@"
+#echo Starting Gunicorn.
+#exec gunicorn music_room.wsgi:application \
+#    --name musicroom \
+#    --bind 0.0.0.0:80 \
+#    --workers 3 \
+#    --log-level=info \
+#    --log-file=/srv/logs/gunicorn.log \
+#    --access-logfile=/srv/logs/access.log \
+#    "$@"
 
 #echo starting server
-#exec python manage.py runserver
+exec python manage.py runserver 0.0.0.0:8000
 #
 #exec "$@"

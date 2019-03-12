@@ -1,78 +1,83 @@
 version: '3'
 services:
-  nginx-proxy:
-    image: danieldent/nginx-ssl-proxy
+  traefik:
+    image: traefik
+    command: --web --api --docker --logLevel=DEBUG
     restart: always
-    environment:
-      UPSTREAM: web:8000
-      SERVERNAME: musicroom.ml
     ports:
-    - "80:80"
-    - "443:443"
+      - 80:80
+      - 443:443
+      - 8080:8080 # The Web UI (enabled by --api)
+    expose:
+      - 8080
+    labels:
+      - "traefik.enable=true"
+      - "traefik.frontent.rule=Host:traefik.${DOMAIN}"
+      - "traefik.frontend.auth.basic=a@a.com:$$apr1$$ax33RJha$$ouYl0yrpk0WOTiItKJGJB0"
+      - "traefik.port=8080"
     volumes:
-    - "/etc/letsencrypt"
-    - "static-volume:/static"
-    - "./nginx.conf:/etc/nginx/main_location.conf"
-
-
-  #    - "music_room/static:music_room/static"
-  #    - "code"
-  #    - "code:/code"
-  #    - "./static/:/home/ubuntu/music_room/static"
-
-
-  #  nginx-proxy:
-  #    image: jwilder/nginx-proxy
-  #    ports:
-  #    - "80:80"
-  #    - "443:443"
-  #    volumes:
-  #    - /var/run/docker.sock:/tmp/docker.sock:ro
-  #    environment:
-  #    - VIRTUAL_PROTO=https
-  #    - VIRTUAL_PORT=443
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./traefik.toml:/traefik.toml
+      - ./acme.json:/acme.json
   web:
     restart: unless-stopped
     build: .
-    #    command: python3 manage.py runserver 0.0.0.0:8000
-    ports:
-    - "8000:8000"
+    command: python manage.py runserver 0.0.0.0:8000 --nostatic
     depends_on:
-    - db
-    - nginx-proxy
-    #    environment:
-    #    - VIRTUAL_HOST=musicroom.ml
-    volumes:
-    #    - "static-volume:/code"
-    - "static-volume:/code/music_room/static"
+      - db
+      - redis
+    environment:
+      PYTHONUNBUFFERED: 'true'
+      #      DJANGO_SETTINGS_MODULE: rebot.settings.production
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+    logging:
+      driver: json-file
+      options:
+        max-file: '5'
+        max-size: '10m'
+    labels:
+      - "traefik.enable=true"
+      - "traefik.frontend.rule=Host:${DOMAIN}"
+      - "traefik.backend=Host:${PROJECT_NAME}.${DOMAIN}"
+      - 'traefik.port=8000'
   db:
     restart: unless-stopped
     image: postgres:alpine
     volumes:
-    - "postgres-data:/var/lib/postgresql/data"
-    ports:
-    - "5432:5432"
-#    redis:
-#      restart: unless-stopped
-#      image: redis:alpine
-#      volumes:
-#      - 'redis-data:/data'
-#      ports:
-#      - "6379:6379"
-#  nginx:
-#    image: nginx:latest
-#    container_name: production_nginx
-#    volumes:
-#    - ./nginx.conf:/etc/nginx/nginx.conf
-#    - ./static/:/home/ubuntu/music_room/static/
-#    - ./musicroom.morbax.com_bundle.crt:/etc/ssl/certs/musicroom.morbax.com_bundle.crt
-#    - ./musicroom.morbax.com.key:/etc/ssl/private/musicroom.morbax.com.key
-#    ports:
-#    - 80:80
-#    - 443:443
+      - "postgres-data:/var/lib/postgresql/data"
+    logging:
+      driver: json-file
+      options:
+        max-file: '5'
+        max-size: '10m'
+  redis:
+    restart: unless-stopped
+    image: redis:alpine
+    volumes:
+      - 'redis-data:/data'
+    logging:
+      driver: json-file
+      options:
+        max-file: '5'
+        max-size: '10m'
+  celery_worker:
+    restart: unless-stopped
+    build: .
+    command: celery -A music_room worker -B --loglevel=info
+    depends_on:
+      - db
+      - redis
+    environment:
+      PYTHONUNBUFFERED: 'true'
+      #      DJANGO_SETTINGS_MODULE: rebot.settings.production
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+    logging:
+      driver: json-file
+      options:
+        max-file: '5'
+        max-size: '10m'
 volumes:
-  nginx-proxy:
   postgres-data:
-  static-volume:
-#  redis:
-#  code:
+  redis-data:

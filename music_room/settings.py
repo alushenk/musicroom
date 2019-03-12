@@ -28,7 +28,8 @@ ALLOWED_HOSTS = ['localhost',
                  '127.0.0.1',
                  'ec2-54-93-227-166.eu-central-1.compute.amazonaws.com',
                  'test-bot.morbax.com',
-                 'musicroom.ml']
+                 'musicroom.ml',
+                 'localhost:3000']
 
 # Application definition
 
@@ -68,6 +69,9 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.facebook',
     'allauth.socialaccount.providers.google',
 
+    # https://www.caktusgroup.com/blog/2014/11/10/Using-Amazon-S3-to-store-your-Django-sites-static-and-media-files/
+    'storages',
+
     'main',
 ]
 
@@ -84,9 +88,17 @@ SITE_ID = 1
 # SOCIAL_AUTH_FACEBOOK_SECRET = 'your app client secret'
 
 # CSRF_COOKIE_SECURE = True
-# CORS_ORIGIN_ALLOW_ALL = True
+CORS_ORIGIN_ALLOW_ALL = True
+
+CORS_ORIGIN_WHITELIST = (
+    'musicroom.ml',
+    'localhost:3000',
+    '127.0.0.1:3000'
+)
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
+    # 'corsheaders.middleware.CorsPostCsrfMiddleware'
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -308,3 +320,37 @@ LOGGING = {
         },
     }
 }
+
+# SECURE_SSL_REDIRECT = True
+# SESSION_COOKIE_SECURE = True
+# CSRF_COOKIE_SECURE = True
+
+# ---------------------- SENTRY - ERRORS NOTIFICATI0N ----------------------------- #
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
+from sentry_sdk.integrations.celery import CeleryIntegration
+
+sentry_sdk.init(
+    dsn="https://082365428e214c5597cab503c380586c@sentry.io/1412660",
+    integrations=[DjangoIntegration(), CeleryIntegration()]
+)
+
+# ------------------------------ S3 shit goes here -------------------------------- #
+AWS_STORAGE_BUCKET_NAME = 'musicroom-bucket'
+# AWS_S3_REGION_NAME = 'eu-central-1'  # e.g. us-east-2
+AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
+
+# Tell django-storages the domain to use to refer to static files.
+AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
+
+# Tell the staticfiles app to use S3Boto3 storage when writing the collected static files (when
+# you run `collectstatic`).
+STATICFILES_LOCATION = 'static'
+# STATICFILES_STORAGE = 'custom_storages.StaticStorage'
+STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
+# ------------------------------ REDIS -------------------------------------------- #
+REDIS_HOST = 'redis'
+REDIS_PORT = '6379'
+CELERY_BROKER_URL = 'redis://' + REDIS_HOST + ':' + REDIS_PORT

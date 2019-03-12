@@ -9,10 +9,12 @@ RUN apt -y install postgresql-client
 
 RUN pip install --no-cache-dir -r requirements.txt
 
+#ADD . docker-entrypoint.sh
 ADD . /code
 
 WORKDIR /code
 
 ENV DJANGO_SETTINGS_MODULE=music_room.settings
 #RUN python manage.py collectstatic
-ENTRYPOINT ["./docker-entrypoint.sh"]
+
+#ENTRYPOINT ["./docker-entrypoint.sh"]
