@@ -8,19 +8,19 @@ services:
       - 80:80
       - 443:443
       - 8080:8080 # The Web UI (enabled by --api)
-    expose:
-      - 8080
-    labels:
-      - "traefik.enable=true"
-      - "traefik.frontent.rule=Host:traefik.${DOMAIN}"
-      - "traefik.frontend.auth.basic=a@a.com:$$apr1$$ax33RJha$$ouYl0yrpk0WOTiItKJGJB0"
-      - "traefik.port=8080"
+#    expose:
+#      - 8080
+#    labels:
+#      - "traefik.enable=true"
+#      - "traefik.frontent.rule=Host:traefik.${DOMAIN}"
+#      - "traefik.frontend.auth.basic=a@a.com:$$apr1$$ax33RJha$$ouYl0yrpk0WOTiItKJGJB0"
+#      - "traefik.port=8080"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./traefik.toml:/traefik.toml
       - ./acme.json:/acme.json
-    networks:
-      - web
+#    networks:
+#      - web
   web:
     restart: unless-stopped
     build: .
@@ -43,9 +43,9 @@ services:
       - "traefik.frontend.rule=Host:${DOMAIN}"
       - "traefik.backend=Host:${PROJECT_NAME}.${DOMAIN}"
       - 'traefik.port=8000'
-    networks:
-      - web
-      - default
+#    networks:
+#      - web
+#      - default
   db:
     restart: unless-stopped
     image: postgres:alpine
@@ -86,6 +86,6 @@ services:
 volumes:
   postgres-data:
   redis-data:
-networks:
-  web:
-    external: true
+#networks:
+#  web:
+#    external: true

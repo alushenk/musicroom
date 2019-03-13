@@ -19,7 +19,7 @@ address = ":8080"
 
 [docker]
 endpoint = "unix:///var/run/docker.sock"
-domain = "traefik.morbax.com"
+domain = "musicroom.ml"
 watch = true
 exposedByDefault = false
 

@@ -30,3 +30,8 @@ https://github.com/davesque/django-rest-framework-simplejwt
 psycopg2 не нужен потому что в джанге2 django.db.backends.postgresql
 
 
+---------------------------------------------------------------------------------------
+чтобы заработал блядский traefik:
+
+touch acme.json
+chmod 600 acme.json
