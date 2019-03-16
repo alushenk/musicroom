@@ -30,9 +30,10 @@ services:
       - redis
     environment:
       PYTHONUNBUFFERED: 'true'
-      #      DJANGO_SETTINGS_MODULE: rebot.settings.production
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      SECRET_KEY: ${SECRET_KEY}
+      DJANGO_SETTINGS_MODULE: music_room.settings.production
     logging:
       driver: json-file
       options:
@@ -75,9 +76,10 @@ services:
       - redis
     environment:
       PYTHONUNBUFFERED: 'true'
-      #      DJANGO_SETTINGS_MODULE: rebot.settings.production
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      SECRET_KEY: ${SECRET_KEY}
+      DJANGO_SETTINGS_MODULE: music_room.settings.production
     logging:
       driver: json-file
       options:

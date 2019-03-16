@@ -19,7 +19,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '#en_*w34c(tw__3!-_@n(_!fw#p&5a59r-#k-)@q*h8eg12oje'
+SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -27,9 +27,8 @@ DEBUG = True
 ALLOWED_HOSTS = ['localhost',
                  '127.0.0.1',
                  'ec2-54-93-227-166.eu-central-1.compute.amazonaws.com',
-                 'test-bot.morbax.com',
                  'musicroom.ml',
-                 'localhost:3000']
+                 'localhost:8000']
 
 # Application definition
 
@@ -72,6 +71,9 @@ INSTALLED_APPS = [
     # https://www.caktusgroup.com/blog/2014/11/10/Using-Amazon-S3-to-store-your-Django-sites-static-and-media-files/
     'storages',
 
+    # https://django-rest-swagger.readthedocs.io/en/latest/
+    'rest_framework_swagger',
+
     'main',
 ]
 
@@ -92,8 +94,8 @@ CORS_ORIGIN_ALLOW_ALL = True
 
 CORS_ORIGIN_WHITELIST = (
     'musicroom.ml',
-    'localhost:3000',
-    '127.0.0.1:3000'
+    'localhost:8000',
+    '127.0.0.1:8000'
 )
 
 MIDDLEWARE = [
@@ -154,18 +156,6 @@ AUTHENTICATION_BACKENDS = (
 )
 
 WSGI_APPLICATION = 'music_room.wsgi.application'
-
-# Database
-# https://docs.djangoproject.com/en/2.1/ref/settings/#databases
-
-DATABASES = {
-    'default': {'ENGINE': 'django.db.backends.postgresql',
-                'NAME': 'postgres',
-                'USER': 'postgres',
-                'PASSWORD': None,
-                'HOST': 'db',
-                'PORT': '5432'}
-}
 
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
@@ -325,17 +315,7 @@ LOGGING = {
 # SESSION_COOKIE_SECURE = True
 # CSRF_COOKIE_SECURE = True
 
-# ---------------------- SENTRY - ERRORS NOTIFICATI0N ----------------------------- #
-import sentry_sdk
-from sentry_sdk.integrations.django import DjangoIntegration
-from sentry_sdk.integrations.celery import CeleryIntegration
-
-sentry_sdk.init(
-    dsn="https://082365428e214c5597cab503c380586c@sentry.io/1412660",
-    integrations=[DjangoIntegration(), CeleryIntegration()]
-)
-
-# ------------------------------ S3 shit goes here -------------------------------- #
+# ------------------------------ S3 STATIC FILES -------------------------------- #
 AWS_STORAGE_BUCKET_NAME = 'musicroom-bucket'
 # AWS_S3_REGION_NAME = 'eu-central-1'  # e.g. us-east-2
 AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
@@ -349,8 +329,3 @@ AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
 STATICFILES_LOCATION = 'static'
 # STATICFILES_STORAGE = 'custom_storages.StaticStorage'
 STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-
-# ------------------------------ REDIS -------------------------------------------- #
-REDIS_HOST = 'redis'
-REDIS_PORT = '6379'
-CELERY_BROKER_URL = 'redis://' + REDIS_HOST + ':' + REDIS_PORT

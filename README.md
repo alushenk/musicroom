@@ -21,8 +21,11 @@ docker-compose -f docker-compose.local.yml up -d
 остановить базу в докере:
 docker-compose -f docker-compose.local.yml stop
 
-документация: http://localhost:8000/docs/
-надо поставить http://core-api.github.io/python-client/
+документация: 
+http://localhost:8000/docs/
+https://musicroom.ml/docs/
+
+надо поставить http://core-api.github.io/python-client/ (вроде для docs)
 
 JWT:
 https://github.com/davesque/django-rest-framework-simplejwt
@@ -35,3 +38,7 @@ psycopg2 не нужен потому что в джанге2 django.db.backends
 
 touch acme.json
 chmod 600 acme.json
+
+---------------------------------------------------------------------------------------
+
+http.js:124 Mixed Content: The page at 'https://musicroom.ml/docs/' was loaded over HTTPS, but requested an insecure resource 'http://musicroom.ml/api/playlists/'. This request has been blocked; the content must be served over HTTPS.

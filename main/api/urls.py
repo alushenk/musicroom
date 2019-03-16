@@ -3,8 +3,8 @@ from .viewsets import UserViewSet, PlaylistViewSet, TrackViewSet, VoteViewSet, F
     login_url
 from rest_framework.routers import DefaultRouter
 from django.conf.urls import url
-from rest_framework.documentation import include_docs_urls
-from rest_framework.schemas import get_schema_view
+# from rest_framework.documentation import include_docs_urls
+# from rest_framework.schemas import get_schema_view
 
 # from rest_framework_simplejwt.views import (
 #     TokenObtainPairView,
@@ -25,10 +25,19 @@ from rest_auth.registration.views import (
 from rest_framework_jwt.views import obtain_jwt_token
 from rest_framework_jwt.views import refresh_jwt_token
 
+# swagger docs
+from rest_framework_swagger.views import get_swagger_view
+
+schema_view = get_swagger_view(title='Pastebin API')
+
 urlpatterns = [
+    url(r'^$', schema_view),
     path('api/', include(router.urls)),
-    url(r'^docs/', include_docs_urls(title='Music room')),
-    url(r'^schema/$', get_schema_view(title='Music room')),
+
+    # url(r'^docs/', include_docs_urls(title='Music room')),
+    # https://www.django-rest-framework.org/api-guide/schemas/
+    # url(r'^schema/$', get_schema_view(title='Music room')),
+
     # url(r'^api/token/$', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     # url(r'^api/token/refresh/$', TokenRefreshView.as_view(), name='token_refresh'),
 
