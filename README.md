@@ -42,3 +42,26 @@ chmod 600 acme.json
 ---------------------------------------------------------------------------------------
 
 http.js:124 Mixed Content: The page at 'https://musicroom.ml/docs/' was loaded over HTTPS, but requested an insecure resource 'http://musicroom.ml/api/playlists/'. This request has been blocked; the content must be served over HTTPS.
+
+---------------------------------------------------------------------------------------
+
+to stop track file
+git rm --cached <file>
+
+---------------------------------------------------------------------------------------
+
+ссыль на мокапы
+https://drive.google.com/file/d/1WMtyw1-TQ5V_SPrCA2sCNQXfXzlYl-NN/view?usp=sharing
+
+---------------------------------------------------------------------------------------
+
+миша использует вместо свагера. оно умеет отображать документацию для вложенных объектов
+https://github.com/axnsan12/drf-yasg
+
+---------------------------------------------------------------------------------------
+
+
+---------------------------------------------------------------------------------------
+
+/auth/registration
+/auth/login
