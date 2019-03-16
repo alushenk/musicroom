@@ -1,12 +1,33 @@
 ### обычная регистрация. пока что возвращает ошибку потому что пытается отправить почту которая не настроена
 ### но юзер создается нормально, игнорируйте ошибку
 
-POST https://musicroom.ml/auth/registration/?username=suka&email=suka@gmail.com&password1=q12we34rt56y&password2=q12we34rt56y
+# это ошибка из-за почты кажется
+# Exception Type: ConnectionRefusedError at /auth/registration/
+# Exception Value: [Errno 61] Connection refused
+# Request information:
+# USER: AnonymousUser
+POST http://localhost:8000/auth/registration/
+Content-Type: application/json
+
+{
+  "username": "suka",
+  "email": "suka@gmail.com",
+  "password1": "q12we34rt56y",
+  "password2": "q12we34rt56y"
+}
 
 ### вводите сюда логин и пароль - получаете в ответ токен
 
-#POST https://musicroom.ml/auth/token/?username=suka&email=suka@gmail.com&password=q12we34rt56y
-POST https://musicroom.ml/auth/token/?username=a&email=a@a.com&password=a
+POST http://localhost:8000/auth/token/
+Content-Type: application/json
+
+{
+  "username": "suka",
+  "email": "suka@gmail.com",
+  "password": "q12we34rt56y"
+}
+
+# eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxLCJ1c2VybmFtZSI6InN1a2EiLCJleHAiOjE1NTI4Mzk3NjYsImVtYWlsIjoic3VrYUBnbWFpbC5jb20ifQ.EEj_EPwpIWJIntrRn5UBAKykWVwGSC-A-ZgKBmVtNDQ
 
 ### рефреш токена
 POST https://musicroom.ml/auth/token-refresh/?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxLCJ1c2VybmFtZSI6ImEiLCJleHAiOjE1NDAzMTIzMDIsImVtYWlsIjoiIn0.Sygqlv4ObWgULEK767VAZcWXPEEVhlaMg8zE2SfBa9s
@@ -14,12 +35,16 @@ POST https://musicroom.ml/auth/token-refresh/?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJI
 
 ### с токеном можно ходить по защищенным урлам
 
-GET https://musicroom.ml/auth/user
-Authorization: JWT eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxLCJ1c2VybmFtZSI6ImEiLCJleHAiOjE1NDAzMTIzMDIsImVtYWlsIjoiIn0.Sygqlv4ObWgULEK767VAZcWXPEEVhlaMg8zE2SfBa9s
+#GET http://{{DOMAIN}}/auth/user
+GET http://localhost:8000/auth/user
+Authorization: JWT eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxLCJ1c2VybmFtZSI6InN1a2EiLCJleHAiOjE1NTI4Mzk3NjYsImVtYWlsIjoic3VrYUBnbWFpbC5jb20ifQ.EEj_EPwpIWJIntrRn5UBAKykWVwGSC-A-ZgKBmVtNDQ
+Content-Type: application/json
+
+{
+}
 
 ###
 
 GET https://musicroom.ml/auth/google/url
 Authorization: JWT eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxLCJ1c2VybmFtZSI6ImEiLCJleHAiOjE1NDAzMTIzMDIsImVtYWlsIjoiIn0.Sygqlv4ObWgULEK767VAZcWXPEEVhlaMg8zE2SfBa9s
 
-###
