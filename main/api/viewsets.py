@@ -22,10 +22,30 @@ from rest_auth.registration.views import SocialLoginView
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
 from rest_framework.decorators import api_view
 from rest_framework.reverse import reverse
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from rest_framework.response import Response
 from rest_framework.decorators import authentication_classes, permission_classes
 from django.shortcuts import redirect
+from datetime import datetime, timedelta
+
+
+@api_view(['GET'])
+def channel(request, **kwargs):
+    cache_expire = 60 * 60 * 24 * 365
+    expiry_time = datetime.utcnow() + timedelta(days=365)
+    response = HttpResponse(
+        '<script src="https://e-cdns-files.dzcdn.net/js/min/dz.js"></script>',
+        # headers={'Expires': expiry_time.strftime("%a, %d %b %Y %H:%M:%S GMT"),
+        #          'Cache-Control': 'maxage={}'.format(cache_expire),
+        #          'Pragma': 'public'
+        #          },
+        content_type='text/html; charset=utf-8'
+    )
+    response['Expires'] = expiry_time.strftime("%a, %d %b %Y %H:%M:%S GMT")
+    response['Cache-Control'] = 'maxage={}'.format(cache_expire)
+    response['Pragma'] = 'public'
+    # response.mimetype = "text/plain"
+    return response
 
 
 @api_view(['GET'])

@@ -30,3 +30,18 @@ entryPoint = "https"
 onHostRule = true
 [acme.httpChallenge]
 entryPoint = "http"
+
+[file]
+#    [backends]
+#        [backends.nasweb]
+#            [backends.nasweb.servers.nasweb]
+#                url = "http://192.168.1.11:5000"
+#
+#    [frontends]
+#        [frontends.domain]
+#            backend = "nasweb"
+#        [frontends.domain.routes.domain]
+#            rule = "Host:musicroom.ml/front"
+    filename = "servers.toml"
+    # Enable watch file changes
+    watch = true

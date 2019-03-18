@@ -3,16 +3,20 @@ from django.contrib.sites.models import Site
 from allauth.socialaccount.models import SocialApp, SocialAccount
 from django.contrib.sites.models import Site
 from main.models import User
+from django.contrib.auth import get_user_model
 
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
         # add superuser
-        u = User(username='a')
-        u.set_password('a')
-        u.is_superuser = True
-        u.is_staff = True
-        u.save()
+        # u = User(username='a', email='a@a.com')
+        # u.set_password('a')
+        # u.is_superuser = True
+        # u.is_staff = True
+        # u.save()
+
+        User = get_user_model()
+        User.objects.create_superuser('a@a.com', 'a', 'a')
 
         # add social app
 

@@ -28,7 +28,8 @@ ALLOWED_HOSTS = ['localhost',
                  '127.0.0.1',
                  'ec2-54-93-227-166.eu-central-1.compute.amazonaws.com',
                  'musicroom.ml',
-                 'localhost:8000']
+                 'localhost:8000',
+                 '172.17.0.1']
 
 # Application definition
 
@@ -300,16 +301,16 @@ STATICFILES_DIRS = (
 
 import sys
 
-LOGGING = {
-    'version': 1,
-    'handlers': {
-        'console': {
-            'level': 'INFO',
-            'class': 'logging.StreamHandler',
-            'stream': sys.stdout
-        },
-    }
-}
+# LOGGING = {
+#     'version': 1,
+#     'handlers': {
+#         'console': {
+#             'level': 'DEBUG',
+#             'class': 'logging.StreamHandler',
+#             'stream': sys.stdout
+#         },
+#     }
+# }
 
 # SECURE_SSL_REDIRECT = True
 # SESSION_COOKIE_SECURE = True
@@ -329,3 +330,5 @@ AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
 STATICFILES_LOCATION = 'static'
 # STATICFILES_STORAGE = 'custom_storages.StaticStorage'
 STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
+DOMAIN = 'musicroom.ml'

@@ -1,0 +1,17 @@
+loglevel = "ERROR"
+
+[backends]
+[backends.zalupa]
+        [backends.zalupa.servers.nasweb]
+#            url = "http://192.168.1.11:5000"
+            url = "http://172.17.0.1:5000"
+
+[frontends]
+        [frontends.front]
+                backend = "zalupa"
+        [frontends.front.routes.front]
+#                rule = "musicroom.ml/front"
+                rule = "Host:front.musicroom.ml"
+#                regex = "^https?://musicroom.ml/(.*)"
+#                replacement = "https://musicroom.ml/$1"
+                permanent = true
