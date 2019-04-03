@@ -203,6 +203,7 @@ class PlaylistViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
 
     @action(methods=['GET'], detail=False, url_path='my_playlists', url_name='my_playlists')
     def get_my_playlist(self, request):
+        """DOESN'T WORK AT THE MOMENT"""
         playlists = self.queryset.all()
         playlist_ids = list()
         for playlist in playlists:
@@ -215,6 +216,7 @@ class PlaylistViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
 
     @action(methods=['GET'], detail=False, url_path='available_playlists', url_name='available_playlists')
     def get_available_playlists(self, request):
+        """DOESN'T WORK AT THE MOMENT"""
         playlists = self.queryset.all()
         playlist_ids = list()
         for playlist in playlists:
