@@ -38,7 +38,7 @@ services:
   web:
     restart: unless-stopped
     build: .
-    command: python manage.py runserver 0.0.0.0:8000 --nostatic
+    command: python manage.py runserver 0.0.0.0:8000 # --nostatic
     depends_on:
       - db
       - redis
@@ -47,7 +47,7 @@ services:
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
       SECRET_KEY: ${SECRET_KEY}
-#      DJANGO_SETTINGS_MODULE: music_room.settings.production
+      DJANGO_SETTINGS_MODULE: music_room.settings.production
     logging:
       driver: json-file
       options:
