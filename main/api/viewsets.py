@@ -206,6 +206,7 @@ class PlaylistViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
         """DOESN'T WORK AT THE MOMENT"""
         playlists = self.queryset.all()
         playlist_ids = list()
+        smth = list()
         for playlist in playlists:
             for owner in playlist.owners.all():
                 if owner.id is request.user.id:
