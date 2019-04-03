@@ -1,3 +1,6 @@
+# variable {{host}}  located in http-client.env.json file (the root of project)
+# variable {{token}} in http-client.private.env.json
+
 ### обычная регистрация. пока что возвращает ошибку потому что пытается отправить почту которая не настроена
 ### но юзер создается нормально, игнорируйте ошибку
 
@@ -6,7 +9,7 @@
 # Exception Value: [Errno 61] Connection refused
 # Request information:
 # USER: AnonymousUser
-POST http://localhost:8000/auth/registration/
+POST {{host}}/auth/registration/
 Content-Type: application/json
 
 {
@@ -18,7 +21,17 @@ Content-Type: application/json
 
 ### вводите сюда логин и пароль - получаете в ответ токен
 
-POST http://localhost:8000/auth/token/
+POST {{host}}/auth/login/
+Content-Type: application/json
+
+{
+  "username": "suka",
+  "password": "q12we34rt56y"
+}
+
+### вводите сюда логин и пароль - получаете в ответ токен
+
+POST {{host}}/auth/token/
 Content-Type: application/json
 
 {
@@ -27,17 +40,14 @@ Content-Type: application/json
   "password": "q12we34rt56y"
 }
 
-# eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxLCJ1c2VybmFtZSI6InN1a2EiLCJleHAiOjE1NTI4Mzk3NjYsImVtYWlsIjoic3VrYUBnbWFpbC5jb20ifQ.EEj_EPwpIWJIntrRn5UBAKykWVwGSC-A-ZgKBmVtNDQ
-
 ### рефреш токена
-POST https://musicroom.ml/auth/token-refresh/?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxLCJ1c2VybmFtZSI6ImEiLCJleHAiOjE1NDAzMTIzMDIsImVtYWlsIjoiIn0.Sygqlv4ObWgULEK767VAZcWXPEEVhlaMg8zE2SfBa9s
+POST {{host}}/auth/token-refresh/?token={{token}}
 /auth/token-refresh/
 
 ### с токеном можно ходить по защищенным урлам
 
-#GET http://{{DOMAIN}}/auth/user
-GET http://localhost:8000/auth/user
-Authorization: JWT eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxLCJ1c2VybmFtZSI6InN1a2EiLCJleHAiOjE1NTI4Mzk3NjYsImVtYWlsIjoic3VrYUBnbWFpbC5jb20ifQ.EEj_EPwpIWJIntrRn5UBAKykWVwGSC-A-ZgKBmVtNDQ
+GET {{host}}/auth/user
+Authorization: JWT {{token}}
 Content-Type: application/json
 
 {
@@ -45,6 +55,15 @@ Content-Type: application/json
 
 ###
 
-GET https://musicroom.ml/auth/google/url
-Authorization: JWT eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxLCJ1c2VybmFtZSI6ImEiLCJleHAiOjE1NDAzMTIzMDIsImVtYWlsIjoiIn0.Sygqlv4ObWgULEK767VAZcWXPEEVhlaMg8zE2SfBa9s
+GET {{host}}/auth/google/url
+Authorization: JWT {{token}}
+Content-Type: application/json
+
+###
+
+GET {{host}}/api/playlists/
+Authorization: JWT {{token}}
+Content-Type: application/json
+
+###
 

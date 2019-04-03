@@ -26,3 +26,7 @@ DATABASES = {
                 'HOST': 'db',
                 'PORT': '5432'}
 }
+
+# to make https requests from /docs & /swagger instead of http
+# https://docs.djangoproject.com/en/1.11/ref/settings/#secure-proxy-ssl-header
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
