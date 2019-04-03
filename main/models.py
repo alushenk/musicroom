@@ -1,6 +1,6 @@
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
-from music_room import settings
+# from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+# from music_room import settings
 # from django.contrib.auth.models import User
 
 # from django.contrib.auth import get_user_model
@@ -15,7 +15,6 @@ class User(AbstractUser):
         db_table = 'user'
 
 
-# class UserManager(BaseUserManager):
 #     def create_user(self, email, password=None):
 #         """
 #         Creates and saves a User with the given email
@@ -111,9 +110,11 @@ class Playlist(models.Model):
     # удалять треки
     # удалить плейлист
     # переименовывать плейлист
+# class UserManager(BaseUserManager):
     # выставлять время и место
     # инвайтить новых юзеров (participants)
-    owner = models.ForeignKey('User', null=True, related_name='own_playlists', on_delete=models.SET_NULL)
+    owners = models.ManyToManyField('User', blank=True, related_name='playlists')
+    creator = models.ForeignKey('User', null=True, blank=True, on_delete=models.CASCADE, related_name='user_creator')
 
     class Meta:
         managed = True

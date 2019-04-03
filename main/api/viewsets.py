@@ -9,7 +9,9 @@ from .serializers import \
     TrackDetailSerializer, \
     VoteSerializer, \
     PlaylistDetailSerializer, \
-    PlaylistSmallSerializer
+    PlaylistSmallSerializer, \
+    PlaylistAddUsersSerializer, \
+    TrackCreateSerializer
 from custom_utils import MultiSerializerViewSetMixin
 from collections import OrderedDict
 from django.db.models import Max
@@ -120,13 +122,14 @@ class UserViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
     @action(methods=['GET'], detail=False, url_path='user_search', url_name='user_search')
     def user_search(self, request):
         """Needs a request like: http://localhost:8000/api/users/user_search/?name=abc"""
-        queryset = User.objects.all().filter(name__icontains=request.query_params['name']).order_by('name')
+        queryset = User.objects.all().filter(username__icontains=request.query_params['username']).order_by('username')
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data)
 
     def get_permissions(self):
         # allow non-authenticated user to create via POST
-        return (AllowAny() if self.request.method == 'POST' else IsStaffOrTargetUser()),
+        # todo is authenticated nado sdelat
+        return (AllowAny() if self.request.method == 'POST' else IsAuthenticated()),
 
 
 def get_track_order(track):
@@ -138,10 +141,13 @@ class PlaylistViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
     queryset = Playlist.objects.all()
     serializer_class = PlaylistSerializer
     serializer_action_classes = {'list': PlaylistSmallSerializer,
-                                 'retrieve': PlaylistDetailSerializer}
+                                 'retrieve': PlaylistDetailSerializer,
+                                 'patch': PlaylistAddUsersSerializer}
 
-    def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
+    def perform_create(self, serializer: serializer_class) -> None:
+        print(self.request.data)
+        serializer.save()
+
 
     def retrieve(self, request, *args, **kwargs):
         data = OrderedDict()
@@ -153,6 +159,7 @@ class PlaylistViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
         for participant in playlist.participants.all():
             participant_list.append(participant)
 
+        #TODO check why we've done this
         for track in playlist.tracks.all():
             track_info = dict()
             vote_counter = track.votes.all().count()
@@ -170,9 +177,10 @@ class PlaylistViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
         data['name'] = playlist.name
         data['time_to'] = playlist.time_to
         data['time_from'] = playlist.time_from
-        data['owner'] = playlist.owner
+        data['owners'] = playlist.owners
         data['tracks'] = track_list
         data['participants'] = participant_list
+        data['creator'] = playlist.creator
 
         serializer = self.serializer_action_classes['retrieve'](data)
         return Response(serializer.data)
@@ -185,11 +193,43 @@ class PlaylistViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
         serializer.save()
         return Response(serializer.data)
 
+    @action(methods=['PATCH'], detail=True, url_path='add_owner', url_name='add_owner')
+    def add_owner(self, request, pk=None):
+        playlist = self.queryset.get(pk=pk)
+        serializer = PlaylistAddUsersSerializer(playlist, data={'owners': request.data['owners']}, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
+
+    @action(methods=['GET'], detail=False, url_path='my_playlists', url_name='my_playlists')
+    def get_my_playlist(self, request):
+        playlists = self.queryset.all()
+        playlist_ids = list()
+        for playlist in playlists:
+            for owner in playlist.owners.all():
+                if owner.id is request.user.id:
+                    playlist_ids.append(playlist.id)
+        playlists = playlists.filter(id__in=playlist_ids)
+        serializer = self.serializer_class(playlists, many=True)
+        return Response(serializer.data)
+
+    @action(methods=['GET'], detail=False, url_path='available_playlists', url_name='available_playlists')
+    def get_available_playlists(self, request):
+        playlists = self.queryset.all()
+        playlist_ids = list()
+        for playlist in playlists:
+            for participant in playlist.participants.all():
+                if participant.id is request.user.id:
+                    playlist_ids.append(playlist.id)
+        playlists = playlists.filter(id__in=playlist_ids)
+        serializer = self.serializer_class(playlists, many=True)
+        return Response(serializer.data)
+
 
 class TrackViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated,)
     queryset = Track.objects.all()
-    serializer_class = TrackDetailSerializer
+    serializer_class = TrackCreateSerializer
     serializer_action_classes = {'list': TrackDetailSerializer,
                                  'retrieve': TrackDetailSerializer}
 
@@ -197,7 +237,11 @@ class TrackViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
         data = dict()
         data['playlist'] = Playlist.objects.get(id=self.request.data['playlist'])
         last_order = Track.objects.all().filter(playlist=data['playlist']).aggregate(Max('order'))
-        data['order'] = last_order['order__max'] + 1
+        print(last_order)
+        if last_order['order__max']:
+            data['order'] = last_order['order__max'] + 1
+        else:
+            data['order'] = 1
         serializer.save(**data)
 
 

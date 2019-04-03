@@ -32,6 +32,13 @@ class VoteSerializer(serializers.ModelSerializer):
             return Vote.objects.create(**validated_data)
 
 
+class TrackCreateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Track
+        fields = ('id', 'playlist')
+
+
 class TrackDetailSerializer(serializers.ModelSerializer):
     votes_count = serializers.IntegerField(read_only=True)
     votes = VoteSerializer(many=True, read_only=True)
@@ -42,22 +49,40 @@ class TrackDetailSerializer(serializers.ModelSerializer):
 
 
 class PlaylistSmallSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Playlist
-        fields = ('is_public', 'place', "time_from", "time_to", "is_active")
+        fields = ('id', 'is_public', 'name', 'place', "time_from", "time_to", "is_active", 'creator')
+
+
+class PlaylistAddUsersSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Playlist
+        fields = ('participants', 'owners')
 
 
 class PlaylistSerializer(serializers.ModelSerializer):
+    def create(self, validated_data):
+
+        ModelCalss = self.Meta.model
+        instance = ModelCalss.objects.create(**validated_data)
+        request = self.context.get('request')
+
+        instance.creator = request.user
+        instance.save()
+        instance.owners.set([request.user])
+        return instance
+
     class Meta:
         model = Playlist
-        fields = ('name', 'is_public', 'is_active', 'place', 'time_from', 'time_to', 'participants')
+        fields = ('name', 'is_public', 'is_active', 'place', 'time_from', 'time_to')
 
 
 class PlaylistDetailSerializer(serializers.ModelSerializer):
-    participants = UserSerializer(many=True, read_only=True)
-    owner = UserSerializer(read_only=True)
     tracks = TrackDetailSerializer(many=True, read_only=True)
 
     class Meta:
         model = Playlist
-        fields = ('name', 'is_public', 'place', "time_from", "time_to", 'participants', 'owner', 'tracks')
+        fields = ('id', 'name', 'is_public', 'place', "time_from", "time_to", 'participants', 'owners', 'tracks',
+                  'creator')
