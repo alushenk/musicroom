@@ -114,7 +114,7 @@ class Playlist(models.Model):
     # выставлять время и место
     # инвайтить новых юзеров (participants)
     owners = models.ManyToManyField('User', blank=True, related_name='playlists')
-    creator = models.ForeignKey('User', null=True, blank=True, on_delete=models.CASCADE, related_name='user_creator')
+    creator = models.ForeignKey('User', null=True, blank=True, on_delete=models.CASCADE, related_name='playlist_creator')
 
     class Meta:
         managed = True
@@ -143,7 +143,7 @@ class Track(models.Model):
     # хуй знает в каком формате хранить
     # возможно домен и часть url будет браться из конфига, а здесь только id
     link = None
-
+    creator = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE, related_name='track_creator')
     # это поле будет инкрементиться или дикрементиться
     # юзер не может поставить больше одного лайка, поэтому надо где-то хранить лайкнутые треки
     # https://docs.djangoproject.com/en/2.0/ref/models/expressions/#f-expressions

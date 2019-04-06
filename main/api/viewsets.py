@@ -16,7 +16,7 @@ from custom_utils import MultiSerializerViewSetMixin
 from collections import OrderedDict
 from django.db.models import Max
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from .permissions import IsStaffOrTargetUser
+from .permissions import PlaylistPermissions, TrackPermissions
 
 from allauth.socialaccount.providers.facebook.views import FacebookOAuth2Adapter
 from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
@@ -139,8 +139,8 @@ def get_track_order(track):
 
 
 class PlaylistViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
-    permission_classes = (IsAuthenticated,)
     queryset = Playlist.objects.all()
+    permission_classes = (IsAuthenticated, PlaylistPermissions)
     serializer_class = PlaylistSerializer
     serializer_action_classes = {'list': PlaylistSmallSerializer,
                                  'retrieve': PlaylistDetailSerializer,
@@ -188,17 +188,17 @@ class PlaylistViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
     @action(methods=['PATCH'], detail=True, url_path='add_participant', url_name='add_participant')
     def add_participant(self, request, pk=None):
         playlist = self.queryset.get(pk=pk)
-        serializer = self.serializer_class(playlist, data={'participants': request.data['participants']}, partial=True)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
+        self.check_object_permissions(request, playlist)
+        playlist.participants.add(*request.data['participants'])
+        serializer = PlaylistAddUsersSerializer(playlist)
         return Response(serializer.data)
 
     @action(methods=['PATCH'], detail=True, url_path='add_owner', url_name='add_owner')
     def add_owner(self, request, pk=None):
         playlist = self.queryset.get(pk=pk)
-        serializer = PlaylistAddUsersSerializer(playlist, data={'owners': request.data['owners']}, partial=True)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
+        self.check_object_permissions(request, playlist)
+        playlist.owners.add(*request.data['owners'])
+        serializer = PlaylistAddUsersSerializer(playlist)
         return Response(serializer.data)
 
     @action(methods=['GET'], detail=False, url_path='my_playlists', url_name='my_playlists')
@@ -206,7 +206,6 @@ class PlaylistViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
         """DOESN'T WORK AT THE MOMENT"""
         playlists = self.queryset.all()
         playlist_ids = list()
-        smth = list()
         for playlist in playlists:
             for owner in playlist.owners.all():
                 if owner.id is request.user.id:
@@ -230,7 +229,7 @@ class PlaylistViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
 
 
 class TrackViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, TrackPermissions)
     queryset = Track.objects.all()
     serializer_class = TrackCreateSerializer
     serializer_action_classes = {'list': TrackDetailSerializer,
@@ -239,13 +238,18 @@ class TrackViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
     def perform_create(self, serializer):
         data = dict()
         data['playlist'] = Playlist.objects.get(id=self.request.data['playlist'])
+        data['creator'] = self.request.user
+        self.check_object_permissions(self.request, data['playlist'])
         last_order = Track.objects.all().filter(playlist=data['playlist']).aggregate(Max('order'))
-        print(last_order)
         if last_order['order__max']:
             data['order'] = last_order['order__max'] + 1
         else:
             data['order'] = 1
         serializer.save(**data)
+
+    def perform_destroy(self, instance):
+        self.check_object_permissions(self.request, instance)
+        instance.delete()
 
 
 class VoteViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
