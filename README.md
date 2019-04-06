@@ -9,9 +9,6 @@ django-admin startapp <name>
 cd ..
 
 
-полностью пересоздать базу:
-./reset.sh
-
 docker-compose.local.yml - для локального тестирования. сервис web запускается через ide
 docker-compose.yml - для сервера, все сервисы внутри контейнеров
 
@@ -24,6 +21,7 @@ docker-compose -f docker-compose.local.yml stop
 документация: 
 http://localhost:8000/docs/
 https://musicroom.ml/docs/
+https://musicroom.ml/swagger
 
 надо поставить http://core-api.github.io/python-client/ (вроде для docs)
 
@@ -64,4 +62,61 @@ https://github.com/axnsan12/drf-yasg
 ---------------------------------------------------------------------------------------
 
 /auth/registration
+{
+  "username": "pidor",
+  "email": "pidor@gmail.com",
+  "password1": "3.14door",
+  "password2": "3.14door"
+}
 /auth/login
+{
+  "username": "pidor",
+  "password": "3.14door"
+}
+
+---------------------------------------------------------------------------------------
+
+Google OAUTH: The redirect URI in the request did not match a registered redirect URI
+- просто поставить / в конце в настройках гугла (в браузере)
+
+---------------------------------------------------------------------------------------
+
+viewsets.login_url
+
+    """
+    /auth/google/url возвращает ссылку на нашу апку в гугле
+
+    по ней должен перейти пользователь чтобы авторизоваться через гугол
+
+    после авторизации пользователя редиректнет на
+
+    /auth/google/callback который вернет некий code который потом надо пихнуть в
+
+    /auth/google (поле access_token можно оставить пустым) который вернет JWT токен
+
+    :param request:
+    :param kwargs:
+    :return:
+    """
+    
+    
+viewsets.TrackViewSet.perform_create
+
+data['order'] = (last_order['order__max'] if last_order['order__max'] else 0) + 1
+
+---------------------------------------------------------------------------------------
+
+для плейлиста
+
+owner:
+- add participant
+- add owner
+- rename
+- delete
+
+participant:
+- add track
+- vote for track
+
+creator:
+- delete?

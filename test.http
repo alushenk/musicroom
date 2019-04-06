@@ -67,3 +67,22 @@ Content-Type: application/json
 
 ###
 
+GET {{host}}/api/
+Authorization: JWT {{token}}
+Content-Type: application/json
+
+###
+
+###
+
+GET {{host}}/api/playlists/
+Authorization: JWT {{token}}
+Content-Type: application/json
+
+###
+
+OPTIONS {{host}}/api/playlists/
+Authorization: JWT {{token}}
+Content-Type: application/json
+
+###

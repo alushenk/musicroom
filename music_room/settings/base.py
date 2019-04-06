@@ -190,55 +190,17 @@ USE_L10N = True
 USE_TZ = True
 
 REST_FRAMEWORK = {
-    # 'DEFAULT_AUTHENTICATION_CLASSES': (
-    #     'rest_framework_simplejwt.authentication.JWTAuthentication',
-    # ),
-    # 'DEFAULT_AUTHENTICATION_CLASSES': ('knox.auth.TokenAuthentication',),
-
     # если это оставить, то не будет пускать к докам так как я не авторизован
-    # 'DEFAULT_PERMISSION_CLASSES': (
-    #     'rest_framework.permissions.IsAuthenticated',
-    # ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.BasicAuthentication',
     ),
+    'TEST_REQUEST_DEFAULT_FORMAT': 'json',
 }
-
-# from datetime import timedelta
-#
-# REST_KNOX = {
-#     'SECURE_HASH_ALGORITHM': 'cryptography.hazmat.primitives.hashes.SHA512',
-#     'AUTH_TOKEN_CHARACTER_LENGTH': 64,
-#     'TOKEN_TTL': timedelta(hours=10),
-#     # 'USER_SERIALIZER': 'knox.serializers.UserSerializer',
-#     'USER_SERIALIZER': 'main.serializers.UserSerializer',
-# }
-
-# from datetime import timedelta
-#
-# SIMPLE_JWT = {
-#     'ACCESS_TOKEN_LIFETIME': timedelta(days=365),
-#     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
-#     'ROTATE_REFRESH_TOKENS': True,
-#     'BLACKLIST_AFTER_ROTATION': True,
-#
-#     'ALGORITHM': 'HS256',
-#     'SIGNING_KEY': SECRET_KEY,
-#     'VERIFYING_KEY': None,
-#
-#     'AUTH_HEADER_TYPES': ('Bearer',),
-#     'USER_ID_FIELD': 'id',
-#     'USER_ID_CLAIM': 'user_id',
-#
-#     'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
-#     'TOKEN_TYPE_CLAIM': 'token_type',
-#
-#     'SLIDING_TOKEN_REFRESH_EXP_CLAIM': 'refresh_exp',
-#     'SLIDING_TOKEN_LIFETIME': timedelta(minutes=5),
-#     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
-# }
 
 AUTH_USER_MODEL = 'main.User'
 
@@ -291,26 +253,30 @@ LOGIN_REDIRECT_URL = '/rest-auth/login/'
 
 STATIC_URL = '/static/'
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
-STATIC_ROOT = os.path.join(PROJECT_ROOT, 'static')
-
 # STATIC_ROOT = '/home/django/django_project/django_project/static'
+STATIC_ROOT = os.path.join(PROJECT_ROOT, 'static')
 
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
 )
 
-import sys
-
-# LOGGING = {
-#     'version': 1,
-#     'handlers': {
-#         'console': {
-#             'level': 'DEBUG',
-#             'class': 'logging.StreamHandler',
-#             'stream': sys.stdout
-#         },
-#     }
-# }
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'main': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': False
+        },
+    },
+}
 
 # SECURE_SSL_REDIRECT = True
 # SESSION_COOKIE_SECURE = True
@@ -332,3 +298,31 @@ STATICFILES_LOCATION = 'static'
 STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
 DOMAIN = 'musicroom.ml'
+
+# to user token auth in swagger
+SWAGGER_SETTINGS = {
+    'USE_SESSION_AUTH': True,
+    'LOGIN_URL': '/auth/login',
+    'LOGOUT_URL': '/auth/logout'
+    # 'SECURITY_DEFINITIONS': {
+    #     'apiKey': {
+    #         'type': 'apiKey',
+    #         'description': 'Personal API Key authorization',
+    #         'name': 'Authorization',
+    #         'in': 'header',
+    #     },
+    #     # 'api_key': {
+    #     #     'type': 'apiKey',
+    #     #     'in': 'header',
+    #     #     'name': 'Authorization'
+    #     # }
+    # },
+}
+
+# Email configuration
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'lush.antony@gmail.com'
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
