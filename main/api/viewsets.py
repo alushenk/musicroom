@@ -113,7 +113,8 @@ class GoogleLogin(SocialLoginView):
 
 
 class UserViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
-    # permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated,)
+    # authentication_classes =
     queryset = User.objects.all()
     serializer_class = UserSerializer
     serializer_action_classes = {'list': UserSerializer,
@@ -126,6 +127,7 @@ class UserViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data)
 
+    # эта штука нахуй не нужна так как все происходит через rest-auth ендпоинты
     def get_permissions(self):
         # allow non-authenticated user to create via POST
         # todo is authenticated nado sdelat
@@ -144,10 +146,8 @@ class PlaylistViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
                                  'retrieve': PlaylistDetailSerializer,
                                  'patch': PlaylistAddUsersSerializer}
 
-    def perform_create(self, serializer: serializer_class) -> None:
-        print(self.request.data)
-        serializer.save()
-
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
 
     def retrieve(self, request, *args, **kwargs):
         data = OrderedDict()
@@ -159,7 +159,7 @@ class PlaylistViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
         for participant in playlist.participants.all():
             participant_list.append(participant)
 
-        #TODO check why we've done this
+        # TODO check why we've done this
         for track in playlist.tracks.all():
             track_info = dict()
             vote_counter = track.votes.all().count()

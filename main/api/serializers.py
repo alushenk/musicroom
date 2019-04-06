@@ -33,7 +33,6 @@ class VoteSerializer(serializers.ModelSerializer):
 
 
 class TrackCreateSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Track
         fields = ('id', 'playlist')
@@ -49,14 +48,12 @@ class TrackDetailSerializer(serializers.ModelSerializer):
 
 
 class PlaylistSmallSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Playlist
         fields = ('id', 'is_public', 'name', 'place', "time_from", "time_to", "is_active", 'creator')
 
 
 class PlaylistAddUsersSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Playlist
         fields = ('participants', 'owners')
@@ -64,9 +61,8 @@ class PlaylistAddUsersSerializer(serializers.ModelSerializer):
 
 class PlaylistSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
-
-        ModelCalss = self.Meta.model
-        instance = ModelCalss.objects.create(**validated_data)
+        ModelClass = self.Meta.model
+        instance = ModelClass.objects.create(**validated_data)
         request = self.context.get('request')
 
         instance.creator = request.user

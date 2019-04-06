@@ -4,7 +4,7 @@ from .viewsets import UserViewSet, PlaylistViewSet, TrackViewSet, VoteViewSet, F
 from rest_framework.routers import DefaultRouter
 from django.conf.urls import url
 
-# from rest_framework.documentation import include_docs_urls
+from rest_framework.documentation import include_docs_urls
 # from rest_framework.schemas import get_schema_view
 
 # from rest_framework_simplejwt.views import (
@@ -37,7 +37,7 @@ urlpatterns = [
     path('swagger/', schema_view),
     path('api/', include(router.urls)),
 
-    # url(r'^docs/', include_docs_urls(title='Music room')),
+    url(r'^docs/', include_docs_urls(title='Music room')),
     # https://www.django-rest-framework.org/api-guide/schemas/
     # url(r'^schema/$', get_schema_view(title='Music room')),
 
