@@ -36,7 +36,7 @@ class TrackCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Track
-        fields = ('id', 'playlist')
+        fields = ('id', 'playlist', 'creator')
 
 
 class TrackDetailSerializer(serializers.ModelSerializer):
@@ -52,7 +52,7 @@ class PlaylistSmallSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Playlist
-        fields = ('id', 'is_public', 'name', 'place', "time_from", "time_to", "is_active", 'creator')
+        fields = ('id', 'is_public', 'name', 'place', "time_from", "time_to", "is_active", 'creator', "owners", "participants")
 
 
 class PlaylistAddUsersSerializer(serializers.ModelSerializer):
@@ -76,7 +76,7 @@ class PlaylistSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Playlist
-        fields = ('name', 'is_public', 'is_active', 'place', 'time_from', 'time_to')
+        fields = ('id', 'name', 'is_public', 'is_active', 'place', 'time_from', 'time_to', 'owners')
 
 
 class PlaylistDetailSerializer(serializers.ModelSerializer):
