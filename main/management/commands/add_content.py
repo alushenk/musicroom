@@ -42,12 +42,14 @@ class Command(BaseCommand):
         user = User.objects.get(email='a@a.com')
 
         playlist = Playlist.objects.create(is_public=True, name='public playlist of user a', creator=user)
+        playlist.owners.add(user)
 
         track_1 = Track.objects.create(playlist=playlist, order=1, creator=user)
         track_2 = Track.objects.create(playlist=playlist, order=2, creator=user)
         track_3 = Track.objects.create(playlist=playlist, order=3, creator=user)
 
         playlist = Playlist.objects.create(is_public=True, name='private playlist of user b', creator=user)
+        playlist.owners.add(user)
 
         track_1 = Track.objects.create(playlist=playlist, order=1, creator=user)
         track_2 = Track.objects.create(playlist=playlist, order=2, creator=user)
@@ -58,12 +60,14 @@ class Command(BaseCommand):
         user = User.objects.create(email='b@b.com', username='b', password='b')
 
         playlist = Playlist.objects.create(is_public=True, name='public playlist of user b', creator=user)
+        playlist.owners.add(user)
 
         track_1 = Track.objects.create(playlist=playlist, order=1, creator=user)
         track_2 = Track.objects.create(playlist=playlist, order=2, creator=user)
         track_3 = Track.objects.create(playlist=playlist, order=3, creator=user)
 
         playlist = Playlist.objects.create(is_public=True, name='private playlist of user b', creator=user)
+        playlist.owners.add(user)
 
         track_1 = Track.objects.create(playlist=playlist, order=1, creator=user)
         track_2 = Track.objects.create(playlist=playlist, order=2, creator=user)

@@ -14,6 +14,9 @@ class User(AbstractUser):
         managed = True
         db_table = 'user'
 
+    def __str__(self):
+        return self.email
+
 
 #     def create_user(self, email, password=None):
 #         """
@@ -110,11 +113,12 @@ class Playlist(models.Model):
     # удалять треки
     # удалить плейлист
     # переименовывать плейлист
-# class UserManager(BaseUserManager):
+    # class UserManager(BaseUserManager):
     # выставлять время и место
     # инвайтить новых юзеров (participants)
     owners = models.ManyToManyField('User', blank=True, related_name='playlists')
-    creator = models.ForeignKey('User', null=True, blank=True, on_delete=models.CASCADE, related_name='playlist_creator')
+    creator = models.ForeignKey('User', null=True, blank=True, on_delete=models.CASCADE,
+                                related_name='playlist_creator')
 
     class Meta:
         managed = True
@@ -126,6 +130,9 @@ class Playlist(models.Model):
         :return:
         """
         pass
+
+    def __str__(self):
+        return self.name
 
 
 class Track(models.Model):
@@ -144,6 +151,7 @@ class Track(models.Model):
     # возможно домен и часть url будет браться из конфига, а здесь только id
     link = None
     creator = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE, related_name='track_creator')
+
     # это поле будет инкрементиться или дикрементиться
     # юзер не может поставить больше одного лайка, поэтому надо где-то хранить лайкнутые треки
     # https://docs.djangoproject.com/en/2.0/ref/models/expressions/#f-expressions
@@ -159,6 +167,9 @@ class Track(models.Model):
     class Meta:
         managed = True
         db_table = 'track'
+
+    def __str__(self):
+        return f'name: None - order: {self.order}'
 
 
 class Vote(models.Model):
