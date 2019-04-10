@@ -1,10 +1,11 @@
 from django.urls import path, include
 from .viewsets import UserViewSet, PlaylistViewSet, TrackViewSet, VoteViewSet, FacebookLogin, GoogleLogin, \
-    callback_url, login_url, channel
+    callback_url, login_url, channel, clear_data, fill_data
 from rest_framework.routers import DefaultRouter
 from django.conf.urls import url
 
 from rest_framework.documentation import include_docs_urls
+
 # from rest_framework.schemas import get_schema_view
 
 # from rest_framework_simplejwt.views import (
@@ -32,7 +33,9 @@ from rest_framework_swagger.views import get_swagger_view
 schema_view = get_swagger_view(title='Pastebin API')
 
 urlpatterns = [
-    path('channel.html', channel),
+    path('management/channel.html', channel),
+    path('management/clear-data', clear_data),
+    path('management/fill-data', fill_data),
 
     path('swagger/', schema_view),
     path('api/', include(router.urls)),

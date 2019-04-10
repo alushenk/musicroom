@@ -2,7 +2,7 @@ from django.core.management.base import BaseCommand
 from django.contrib.sites.models import Site
 from allauth.socialaccount.models import SocialApp, SocialAccount
 from django.contrib.sites.models import Site
-from main.models import User
+from main.models import *
 from django.contrib.auth import get_user_model
 
 
@@ -16,7 +16,7 @@ class Command(BaseCommand):
         # u.save()
 
         User = get_user_model()
-        User.objects.create_superuser('a@a.com', 'a', 'a')
+        user = User.objects.create_superuser(email='a@a.com', username='a', password='a')
 
         # add social app
 
@@ -36,3 +36,35 @@ class Command(BaseCommand):
 
         # sacc = SocialAccount(uid="<your facebook uid>", user=user, provider='facebook')
         # sacc.save()
+
+        # ----------------------------------------------------------------------------------------------------
+
+        user = User.objects.get(email='a@a.com')
+
+        playlist = Playlist.objects.create(is_public=True, name='public playlist of user a', creator=user)
+
+        track_1 = Track.objects.create(playlist=playlist, order=1, creator=user)
+        track_2 = Track.objects.create(playlist=playlist, order=2, creator=user)
+        track_3 = Track.objects.create(playlist=playlist, order=3, creator=user)
+
+        playlist = Playlist.objects.create(is_public=True, name='private playlist of user b', creator=user)
+
+        track_1 = Track.objects.create(playlist=playlist, order=1, creator=user)
+        track_2 = Track.objects.create(playlist=playlist, order=2, creator=user)
+        track_3 = Track.objects.create(playlist=playlist, order=3, creator=user)
+
+        # ----------------------------------------------------------------------------------------------------
+
+        user = User.objects.create(email='b@b.com', username='b', password='b')
+
+        playlist = Playlist.objects.create(is_public=True, name='public playlist of user b', creator=user)
+
+        track_1 = Track.objects.create(playlist=playlist, order=1, creator=user)
+        track_2 = Track.objects.create(playlist=playlist, order=2, creator=user)
+        track_3 = Track.objects.create(playlist=playlist, order=3, creator=user)
+
+        playlist = Playlist.objects.create(is_public=True, name='private playlist of user b', creator=user)
+
+        track_1 = Track.objects.create(playlist=playlist, order=1, creator=user)
+        track_2 = Track.objects.create(playlist=playlist, order=2, creator=user)
+        track_3 = Track.objects.create(playlist=playlist, order=3, creator=user)

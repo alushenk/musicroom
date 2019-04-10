@@ -120,3 +120,12 @@ participant:
 
 creator:
 - delete?
+
+---------------------------------------------------------------------------------------
+
+from sentry_sdk import capture_message
+from sentry_sdk import capture_exception
+
+capture_message(EMAIL_HOST_PASSWORD)
+capture_exception(EMAIL_HOST_PASSWORD)
+capture_exception('hello suka blyad')
