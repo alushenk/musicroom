@@ -29,7 +29,9 @@ ALLOWED_HOSTS = ['localhost',
                  'ec2-54-93-227-166.eu-central-1.compute.amazonaws.com',
                  'musicroom.ml',
                  'localhost:8000',
-                 '172.17.0.1']
+                 '172.17.0.1',
+                 'localhost:3000',
+                 'http://localhost:3000', ]
 
 # Application definition
 
@@ -90,26 +92,26 @@ SITE_ID = 1
 # SOCIAL_AUTH_FACEBOOK_KEY = 'your app client id'
 # SOCIAL_AUTH_FACEBOOK_SECRET = 'your app client secret'
 
-# CSRF_COOKIE_SECURE = True
-CORS_ORIGIN_ALLOW_ALL = True
-
-CORS_ORIGIN_WHITELIST = (
-    'musicroom.ml',
-    'localhost:8000',
-    '127.0.0.1:8000'
-)
-
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     # 'corsheaders.middleware.CorsPostCsrfMiddleware'
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'main.disable_csrf.DisableCSRF',
 ]
+
+CORS_ORIGIN_ALLOW_ALL = True
+
+# CORS_ORIGIN_WHITELIST = (
+#     'musicroom.ml',
+#     'localhost:8000',
+#     '127.0.0.1:8000'
+# )
 
 ROOT_URLCONF = 'music_room.urls'
 
@@ -138,6 +140,12 @@ TEMPLATES = [
 
                 # `allauth` needs this from django
                 'django.template.context_processors.request',
+
+                # because of error:
+                # 'django.contrib.messages.context_processors.messages' must be enabled in
+                # DjangoTemplates (TEMPLATES) in order to use the admin application.
+                'django.template.context_processors.debug',
+                'django.contrib.messages.context_processors.messages',
             ],
         },
     }
@@ -204,12 +212,8 @@ REST_FRAMEWORK = {
 
 AUTH_USER_MODEL = 'main.User'
 
-# GOOGLE_CLIENT_ID = '205782653310-fjjullvs7cklq6su4qp0o7e8def79vfg.apps.googleusercontent.com'
-# GOOGLE_CLIENT_SECRET = 'sMv5Xrje1aP_f__HS3g3Jt2B'
-
 REST_USE_JWT = True
-
-from datetime import timedelta
+REST_SESSION_LOGIN = False
 
 JWT_AUTH = {
     'JWT_ENCODE_HANDLER':
@@ -233,14 +237,15 @@ JWT_AUTH = {
     'JWT_PRIVATE_KEY': None,
     'JWT_ALGORITHM': 'HS256',
     'JWT_VERIFY': True,
-    'JWT_VERIFY_EXPIRATION': True,
-    'JWT_LEEWAY': 0,
-    'JWT_EXPIRATION_DELTA': timedelta(days=1),
-    'JWT_AUDIENCE': None,
-    'JWT_ISSUER': None,
-
-    'JWT_ALLOW_REFRESH': False,
-    'JWT_REFRESH_EXPIRATION_DELTA': timedelta(days=7),
+    # turn off expiration; tokens will live forever)
+    'JWT_VERIFY_EXPIRATION': False,
+    # 'JWT_LEEWAY': 0,
+    # 'JWT_EXPIRATION_DELTA': timedelta(days=1),
+    # 'JWT_AUDIENCE': None,
+    # 'JWT_ISSUER': None,
+    # todo try it out
+    # 'JWT_ALLOW_REFRESH': False,
+    # 'JWT_REFRESH_EXPIRATION_DELTA': timedelta(days=7),
 
     'JWT_AUTH_HEADER_PREFIX': 'JWT',
     'JWT_AUTH_COOKIE': None,
@@ -264,10 +269,20 @@ LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'handlers': {
+        #     'gelf': {
+        #         'level': 'DEBUG',
+        #         'class': 'graypy.GELFUDPHandler',
+        #         'host': 'localhost',
+        #         'port': 12201,
+        #     },
         'console': {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
         },
+        # 'sentry': {
+        #     'level': 'DEBUG',
+        #     'class': 'sentry_sdk.integrations.logging.SentryHandler',
+        # },
     },
     'loggers': {
         'main': {
@@ -280,7 +295,7 @@ LOGGING = {
 
 # SECURE_SSL_REDIRECT = True
 # SESSION_COOKIE_SECURE = True
-# CSRF_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = False
 
 # ------------------------------ S3 STATIC FILES -------------------------------- #
 AWS_STORAGE_BUCKET_NAME = 'musicroom-bucket'
@@ -301,22 +316,22 @@ DOMAIN = 'musicroom.ml'
 
 # to user token auth in swagger
 SWAGGER_SETTINGS = {
-    'USE_SESSION_AUTH': True,
-    'LOGIN_URL': '/auth/login',
-    'LOGOUT_URL': '/auth/logout'
-    # 'SECURITY_DEFINITIONS': {
-    #     'apiKey': {
-    #         'type': 'apiKey',
-    #         'description': 'Personal API Key authorization',
-    #         'name': 'Authorization',
-    #         'in': 'header',
-    #     },
-    #     # 'api_key': {
-    #     #     'type': 'apiKey',
-    #     #     'in': 'header',
-    #     #     'name': 'Authorization'
-    #     # }
-    # },
+    'USE_SESSION_AUTH': False,
+    # 'LOGIN_URL': '/auth/login',
+    # 'LOGOUT_URL': '/auth/logout',
+    'SECURITY_DEFINITIONS': {
+        'apiKey': {
+            'type': 'apiKey',
+            'description': 'Personal API Key authorization',
+            'name': 'Authorization',
+            'in': 'header',
+        },
+        #     # 'api_key': {
+        #     #     'type': 'apiKey',
+        #     #     'in': 'header',
+        #     #     'name': 'Authorization'
+        #     },
+    }
 }
 
 # Email configuration

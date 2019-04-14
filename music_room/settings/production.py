@@ -30,3 +30,29 @@ DATABASES = {
 # to make https requests from /docs & /swagger instead of http
 # https://docs.djangoproject.com/en/1.11/ref/settings/#secure-proxy-ssl-header
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# from sentry_sdk.integrations.django import DjangoIntegration
+# from sentry_sdk.integrations.celery import CeleryIntegration
+# from sentry_sdk.integrations.logging import SentryHandler
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+        },
+        # 'sentry': {
+        #     'level': 'DEBUG',
+        #     'class': 'SentryHandler',
+        # },
+    },
+    'loggers': {
+        'main': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': False
+        },
+    },
+}

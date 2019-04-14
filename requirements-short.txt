@@ -1,1 +1,26 @@
+Django
+django-rest-framework
+psycopg2
+
+# for schema
+coreapi
+pyyaml
+
+# authentication
+django-rest-auth
+django-allauth
+djangorestframework-jwt
+
+# for S3
+django-storages
+boto3
+
 django-rest-swagger
+# ne nado
+# django-cors-headers
+sentry-sdk
+
+# docker ?
+
+# docker-compose ?
+# graypy?
