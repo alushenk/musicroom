@@ -34,6 +34,7 @@ from sentry_sdk import capture_exception
 from django.conf import settings
 from django.core import management
 from io import StringIO
+from .filters import PlaylistFilter
 
 
 @api_view(['GET'])
@@ -179,6 +180,7 @@ class PlaylistViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
     serializer_action_classes = {'list': PlaylistSmallSerializer,
                                  'retrieve': PlaylistDetailSerializer,
                                  'patch': PlaylistAddUsersSerializer}
+    filter_class = PlaylistFilter
 
     def retrieve(self, request, *args, **kwargs):
         data = OrderedDict()
@@ -198,6 +200,7 @@ class PlaylistViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
             track_info['order'] = track.order
             track_info['votes_count'] = vote_counter
             track_info['playlist'] = track.playlist
+            track_info['data'] = track.data
             track_list.append(track_info)
         track_list = sorted(track_list, key=get_track_order)
 
@@ -240,19 +243,6 @@ class PlaylistViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
         for playlist in playlists:
             for owner in playlist.owners.all():
                 if owner.id is request.user.id:
-                    playlist_ids.append(playlist.id)
-        playlists = playlists.filter(id__in=playlist_ids)
-        serializer = self.serializer_class(playlists, many=True)
-        return Response(serializer.data)
-
-    @action(methods=['GET'], detail=False, url_path='available_playlists', url_name='available_playlists')
-    def get_available_playlists(self, request):
-        """DOESN'T WORK AT THE MOMENT"""
-        playlists = self.queryset.all()
-        playlist_ids = list()
-        for playlist in playlists:
-            for participant in playlist.participants.all():
-                if participant.id is request.user.id:
                     playlist_ids.append(playlist.id)
         playlists = playlists.filter(id__in=playlist_ids)
         serializer = self.serializer_class(playlists, many=True)
@@ -304,5 +294,5 @@ class VoteViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
         try:
             serializer.save(track=data['track'], user=self.request.user)
         except:
-            serializer.data['status'] = "Instace deleted"
+            serializer.data['status'] = "Instance deleted"
             print(serializer.data)

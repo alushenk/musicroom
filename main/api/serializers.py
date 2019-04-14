@@ -36,7 +36,7 @@ class VoteSerializer(serializers.ModelSerializer):
 class TrackCreateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         if validated_data.get('response') == "Track already exists":
-            return Response("text")
+            return Response("Track already exists")
         return self.Meta.model.objects.create(**validated_data)
 
     class Meta:
@@ -67,6 +67,7 @@ class PlaylistAddUsersSerializer(serializers.ModelSerializer):
 
 class PlaylistSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
+        validated_data.pop("owners")
         ModelClass = self.Meta.model
         instance = ModelClass.objects.create(**validated_data)
         request = self.context.get('request')
