@@ -1,5 +1,8 @@
+amqp==2.4.2
+billiard==3.6.0.0
 boto3==1.9.130
 botocore==1.12.130
+celery==4.3.0
 certifi==2019.3.9
 chardet==3.0.4
 coreapi==2.3.3
@@ -20,6 +23,7 @@ idna==2.8
 itypes==1.1.0
 Jinja2==2.10.1
 jmespath==0.9.4
+kombu==4.5.0
 MarkupSafe==1.1.1
 oauthlib==3.0.1
 openapi-codec==1.3.2
@@ -38,3 +42,4 @@ six==1.12.0
 sqlparse==0.3.0
 uritemplate==3.0.0
 urllib3==1.24.1
+vine==1.3.0

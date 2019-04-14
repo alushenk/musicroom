@@ -24,3 +24,6 @@ sentry-sdk
 
 # docker-compose ?
 # graypy?
+
+# I install this, but I think we don't need it
+# celery

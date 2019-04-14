@@ -50,7 +50,7 @@ class TrackDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Track
-        fields = ('id', 'playlist', 'link', 'order', 'votes_count', 'votes', 'data')
+        fields = ('id', 'playlist', 'order', 'votes_count', 'votes', 'data')
 
 
 class PlaylistSmallSerializer(serializers.ModelSerializer):
