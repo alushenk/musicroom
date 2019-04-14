@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from main.models import User, Playlist, Track, Vote
+from rest_framework.response import Response
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -33,9 +34,14 @@ class VoteSerializer(serializers.ModelSerializer):
 
 
 class TrackCreateSerializer(serializers.ModelSerializer):
+    def create(self, validated_data):
+        if validated_data.get('response') == "Track already exists":
+            return Response("text")
+        return self.Meta.model.objects.create(**validated_data)
+
     class Meta:
         model = Track
-        fields = ('id', 'playlist', 'creator')
+        fields = ('id', 'playlist', 'data')
 
 
 class TrackDetailSerializer(serializers.ModelSerializer):
@@ -44,7 +50,7 @@ class TrackDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Track
-        fields = ('id', 'playlist', 'link', 'order', 'votes_count', 'votes')
+        fields = ('id', 'playlist', 'link', 'order', 'votes_count', 'votes', 'data')
 
 
 class PlaylistSmallSerializer(serializers.ModelSerializer):

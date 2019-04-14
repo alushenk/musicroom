@@ -267,16 +267,24 @@ class TrackViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
                                  'retrieve': TrackDetailSerializer}
 
     def perform_create(self, serializer):
-        data = dict()
-        data['playlist'] = Playlist.objects.get(id=self.request.data['playlist'])
-        data['creator'] = self.request.user
-        self.check_object_permissions(self.request, data['playlist'])
-        last_order = Track.objects.all().filter(playlist=data['playlist']).aggregate(Max('order'))
-        if last_order['order__max']:
-            data['order'] = last_order['order__max'] + 1
+        if serializer.is_valid():
+            if Track.objects.all().filter(playlist=self.request.data['playlist']).filter(data__id=self.request.data['data']['id']):
+                data = {"response": "Track already exists"}
+                serializer.save(**data)
+                # return Response(data={'message': 'Track already exists'}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                data = dict()
+                data['playlist'] = Playlist.objects.get(id=self.request.data['playlist'])
+                data['creator'] = self.request.user
+                self.check_object_permissions(self.request, data['playlist'])
+                last_order = Track.objects.all().filter(playlist=data['playlist']).aggregate(Max('order'))
+                if last_order['order__max']:
+                    data['order'] = last_order['order__max'] + 1
+                else:
+                    data['order'] = 1
+                serializer.save(**data)
         else:
-            data['order'] = 1
-        serializer.save(**data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def perform_destroy(self, instance):
         self.check_object_permissions(self.request, instance)

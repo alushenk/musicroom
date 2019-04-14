@@ -7,6 +7,7 @@ from django.db import models
 #
 # User = get_user_model()
 from django.contrib.auth.models import AbstractUser
+from django.contrib.postgres.fields import JSONField
 
 
 class User(AbstractUser):
@@ -149,7 +150,7 @@ class Track(models.Model):
     # ссылка на трек в deezer api
     # хуй знает в каком формате хранить
     # возможно домен и часть url будет браться из конфига, а здесь только id
-    link = None
+    data = JSONField(blank=True, null=True)
     creator = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE, related_name='track_creator')
 
     # это поле будет инкрементиться или дикрементиться
