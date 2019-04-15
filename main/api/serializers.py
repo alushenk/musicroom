@@ -34,10 +34,6 @@ class VoteSerializer(serializers.ModelSerializer):
 
 
 class TrackCreateSerializer(serializers.ModelSerializer):
-    def create(self, validated_data):
-        if validated_data.get('response') == "Track already exists":
-            return Response("Track already exists")
-        return self.Meta.model.objects.create(**validated_data)
 
     class Meta:
         model = Track
