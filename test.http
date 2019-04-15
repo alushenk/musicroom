@@ -1,14 +1,7 @@
 # variable {{host}}  located in http-client.env.json file (the root of project)
 # variable {{token}} in http-client.private.env.json
 
-### обычная регистрация. пока что возвращает ошибку потому что пытается отправить почту которая не настроена
-### но юзер создается нормально, игнорируйте ошибку
-
-# это ошибка из-за почты кажется
-# Exception Type: ConnectionRefusedError at /auth/registration/
-# Exception Value: [Errno 61] Connection refused
-# Request information:
-# USER: AnonymousUser
+# регистрация
 POST {{host}}/auth/registration/
 Content-Type: application/json
 
@@ -19,20 +12,14 @@ Content-Type: application/json
   "password2": "q12we34rt56y"
 }
 
-### вводите сюда логин и пароль - получаете в ответ токен
+### verify email
 
-POST {{host}}/auth/login/
+POST {{host}}/auth/verify-email/
 Content-Type: application/json
 
 {
-  "username": "wartoxy@gmail.com",
-  "password": "q12we34rt56y"
+  "key": "MQ:1hFnhO:CuCgGhBHg02jFdDeP5z04PER2cs"
 }
-
-###
-
-POST {{host}}/auth/logout/
-Content-Type: application/json
 
 ### вводите сюда логин и пароль - получаете в ответ токен
 
@@ -45,15 +32,7 @@ Content-Type: application/json
   "password": "q12we34rt56y"
 }
 
-### рефреш токена
-POST {{host}}/auth/token-refresh/
-Content-Type: application/json
-
-{
-  "token": {{token}}
-}
-
-### с токеном можно ходить по защищенным урлам
+### текущий пользователь (профиль)
 
 GET {{host}}/auth/user
 Authorization: JWT {{token}}
@@ -100,24 +79,12 @@ GET {{host}}/api/tracks/
 Authorization: JWT {{token}}
 Content-Type: application/json
 
-###
-
-OPTIONS {{host}}/api/playlists/
-Authorization: JWT {{token}}
-Content-Type: application/json
-
-###
-
-OPTIONS {{host}}/api/
-Authorization: JWT {{token}}
-Content-Type: application/json
-
-###
+### удалить все данные из базы
 
 GET {{host}}/management/clear-data
 Content-Type: application/json
 
-###
+### заполнить тестовыми (аналогично ./manage.py add_content; main/management/commands/add_content.py)
 
 GET {{host}}/management/fill-data
 Content-Type: application/json

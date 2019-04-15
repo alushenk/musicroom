@@ -1,39 +1,31 @@
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
-from rest_framework.response import Response
-from rest_framework.views import csrf_exempt
-from ..models import User, Playlist, Track, Vote
-from .serializers import \
-    UserSerializer, \
-    PlaylistSerializer, \
-    TrackDetailSerializer, \
-    VoteSerializer, \
-    PlaylistDetailSerializer, \
-    PlaylistSmallSerializer, \
-    PlaylistAddUsersSerializer, \
-    TrackCreateSerializer
 from custom_utils import MultiSerializerViewSetMixin
 from collections import OrderedDict
 from django.db.models import Max
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from .permissions import PlaylistPermissions, TrackPermissions
-
 from allauth.socialaccount.providers.facebook.views import FacebookOAuth2Adapter
 from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
 from rest_auth.registration.views import SocialLoginView
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
 from rest_framework.decorators import api_view
-from rest_framework.reverse import reverse
 from django.http import JsonResponse, HttpResponse
-from rest_framework.response import Response
-from rest_framework.decorators import authentication_classes, permission_classes
-from django.shortcuts import redirect
 from datetime import datetime, timedelta
 from sentry_sdk import capture_message
 from sentry_sdk import capture_exception
 from django.conf import settings
 from django.core import management
 from io import StringIO
+from rest_framework.response import Response
+from rest_framework.decorators import authentication_classes, permission_classes
+from allauth.account.decorators import verified_email_required
+from rest_framework.views import csrf_exempt
+from rest_framework_jwt import authentication
+from django.shortcuts import redirect
+from rest_framework.reverse import reverse
+from .. import models
+from . import serializers
+from . import permissions
 from .filters import PlaylistFilter
 
 
@@ -148,17 +140,15 @@ class GoogleLogin(SocialLoginView):
 
 
 class UserViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
-    permission_classes = (IsAuthenticated,)
-    # authentication_classes =
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    serializer_action_classes = {'list': UserSerializer,
-                                 'retrieve': UserSerializer}
+    queryset = models.User.objects.all()
+    serializer_class = serializers.UserSerializer
+    serializer_action_classes = {'list': serializers.UserSerializer,
+                                 'retrieve': serializers.UserSerializer}
 
     @action(methods=['GET'], detail=False, url_path='user_search', url_name='user_search')
     def user_search(self, request):
         """Needs a request like: http://localhost:8000/api/users/user_search/?name=abc"""
-        queryset = User.objects.all().filter(username__icontains=request.query_params['username']).order_by('username')
+        queryset = models.User.objects.all().filter(username__icontains=request.query_params['username']).order_by('username')
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data)
 
@@ -174,12 +164,12 @@ def get_track_order(track):
 
 
 class PlaylistViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
-    queryset = Playlist.objects.all()
-    permission_classes = (IsAuthenticated, PlaylistPermissions)
-    serializer_class = PlaylistSerializer
-    serializer_action_classes = {'list': PlaylistSmallSerializer,
-                                 'retrieve': PlaylistDetailSerializer,
-                                 'patch': PlaylistAddUsersSerializer}
+    queryset = models.Playlist.objects.all()
+    permission_classes = (IsAuthenticated, permissions.PlaylistPermissions) #, permissions.IsEmailConfirmed)
+    serializer_class = serializers.PlaylistSerializer
+    serializer_action_classes = {'list': serializers.PlaylistSmallSerializer,
+                                 'retrieve': serializers.PlaylistDetailSerializer,
+                                 'patch': serializers.PlaylistAddUsersSerializer}
     filter_class = PlaylistFilter
 
     def retrieve(self, request, *args, **kwargs):
@@ -187,7 +177,7 @@ class PlaylistViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
         participant_list = list()
         track_list = list()
 
-        playlist = Playlist.objects.get(pk=kwargs['pk'])
+        playlist = models.Playlist.objects.get(pk=kwargs['pk'])
 
         for participant in playlist.participants.all():
             participant_list.append(participant)
@@ -224,7 +214,7 @@ class PlaylistViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
         playlist = self.queryset.get(pk=pk)
         self.check_object_permissions(request, playlist)
         playlist.participants.add(*request.data['participants'])
-        serializer = PlaylistAddUsersSerializer(playlist)
+        serializer = serializers.PlaylistAddUsersSerializer(playlist)
         return Response(serializer.data)
 
     @action(methods=['PATCH'], detail=True, url_path='add_owner', url_name='add_owner')
@@ -232,7 +222,7 @@ class PlaylistViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
         playlist = self.queryset.get(pk=pk)
         self.check_object_permissions(request, playlist)
         playlist.owners.add(*request.data['owners'])
-        serializer = PlaylistAddUsersSerializer(playlist)
+        serializer = serializers.PlaylistAddUsersSerializer(playlist)
         return Response(serializer.data)
 
     @action(methods=['GET'], detail=False, url_path='my_playlists', url_name='my_playlists')
@@ -249,25 +239,27 @@ class PlaylistViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
+# @verified_email_required
 class TrackViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
-    permission_classes = (IsAuthenticated, TrackPermissions)
-    queryset = Track.objects.all()
-    serializer_class = TrackCreateSerializer
-    serializer_action_classes = {'list': TrackDetailSerializer,
-                                 'retrieve': TrackDetailSerializer}
+    permission_classes = (IsAuthenticated, permissions.TrackPermissions)
+    queryset = models.Track.objects.all()
+    serializer_class = serializers.TrackCreateSerializer
+    serializer_action_classes = {'list': serializers.TrackDetailSerializer,
+                                 'retrieve': serializers.TrackDetailSerializer}
 
     def perform_create(self, serializer):
         if serializer.is_valid():
-            if Track.objects.all().filter(playlist=self.request.data['playlist']).filter(data__id=self.request.data['data']['id']):
+            if models.Track.objects.all().filter(playlist=self.request.data['playlist']).filter(
+                    data__id=self.request.data['data']['id']):
                 data = {"response": "Track already exists"}
                 serializer.save(**data)
                 # return Response(data={'message': 'Track already exists'}, status=status.HTTP_400_BAD_REQUEST)
             else:
                 data = dict()
-                data['playlist'] = Playlist.objects.get(id=self.request.data['playlist'])
+                data['playlist'] = models.Playlist.objects.get(id=self.request.data['playlist'])
                 data['creator'] = self.request.user
                 self.check_object_permissions(self.request, data['playlist'])
-                last_order = Track.objects.all().filter(playlist=data['playlist']).aggregate(Max('order'))
+                last_order = models.Track.objects.all().filter(playlist=data['playlist']).aggregate(Max('order'))
                 if last_order['order__max']:
                     data['order'] = last_order['order__max'] + 1
                 else:
@@ -283,14 +275,14 @@ class TrackViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
 
 class VoteViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated,)
-    queryset = Vote.objects.all()
-    serializer_class = VoteSerializer
-    serializer_action_classes = {'list': VoteSerializer,
-                                 'retrieve': VoteSerializer}
+    queryset = models.Vote.objects.all()
+    serializer_class = serializers.VoteSerializer
+    serializer_action_classes = {'list': serializers.VoteSerializer,
+                                 'retrieve': serializers.VoteSerializer}
 
     def perform_create(self, serializer):
         data = dict()
-        data['track'] = Track.objects.get(id=self.request.data['track'])
+        data['track'] = models.Track.objects.get(id=self.request.data['track'])
         try:
             serializer.save(track=data['track'], user=self.request.user)
         except:

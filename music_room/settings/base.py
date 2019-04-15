@@ -317,20 +317,13 @@ DOMAIN = 'musicroom.ml'
 # to user token auth in swagger
 SWAGGER_SETTINGS = {
     'USE_SESSION_AUTH': False,
-    # 'LOGIN_URL': '/auth/login',
-    # 'LOGOUT_URL': '/auth/logout',
     'SECURITY_DEFINITIONS': {
         'apiKey': {
             'type': 'apiKey',
-            'description': 'Personal API Key authorization',
+            'description': 'Personal JWT Token',
             'name': 'Authorization',
             'in': 'header',
-        },
-        #     # 'api_key': {
-        #     #     'type': 'apiKey',
-        #     #     'in': 'header',
-        #     #     'name': 'Authorization'
-        #     },
+        }
     }
 }
 

@@ -67,7 +67,6 @@ class PlaylistAddUsersSerializer(serializers.ModelSerializer):
 
 class PlaylistSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
-        validated_data.pop("owners")
         ModelClass = self.Meta.model
         instance = ModelClass.objects.create(**validated_data)
         request = self.context.get('request')
@@ -79,7 +78,7 @@ class PlaylistSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Playlist
-        fields = ('id', 'name', 'is_public', 'is_active', 'place', 'time_from', 'time_to', 'owners')
+        fields = ('id', 'name', 'is_public', 'is_active', 'place', 'time_from', 'time_to')
 
 
 class PlaylistDetailSerializer(serializers.ModelSerializer):
