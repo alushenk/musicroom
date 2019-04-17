@@ -33,6 +33,9 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
 
 class PlaylistPermissions(permissions.BasePermission):
 
+    # def has_permission(self, request, view):
+    #     return request.user.permissions.is_authenticated
+
     def has_object_permission(self, request, view, obj=None):
         if obj.is_public is True:
             if view.action in ['add_participant', 'retrieve']:
@@ -54,3 +57,14 @@ class TrackPermissions(permissions.BasePermission):
         elif view.action in ['destroy', 'update', 'partial_update']:
             return obj.creator is request.user
         return True
+
+
+from allauth.account.models import EmailAddress
+
+
+class IsEmailConfirmed(permissions.BasePermission):
+
+    message = 'You have to validate email.'
+
+    def has_permission(self, request, view, obj=None):
+        return EmailAddress.objects.filter(user=request.user, verified=True).exists()

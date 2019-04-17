@@ -46,6 +46,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.staticfiles',
 
+    'main',
+
     # pip install django-cors-headers
     # https://github.com/ottoyiu/django-cors-headers
     # чтобы при логине через сессию (который не нужен ибо делаем JWT)
@@ -77,7 +79,6 @@ INSTALLED_APPS = [
     # https://django-rest-swagger.readthedocs.io/en/latest/
     'rest_framework_swagger',
 
-    'main',
 ]
 
 SITE_ID = 1
@@ -131,7 +132,7 @@ TEMPLATES = [
     # },
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(os.path.dirname(BASE_DIR), 'main/templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -209,8 +210,6 @@ REST_FRAMEWORK = {
     ),
     'TEST_REQUEST_DEFAULT_FORMAT': 'json',
 }
-
-AUTH_USER_MODEL = 'main.User'
 
 REST_USE_JWT = True
 REST_SESSION_LOGIN = False
@@ -334,3 +333,14 @@ EMAIL_PORT = 587
 EMAIL_HOST_USER = 'lush.antony@gmail.com'
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+
+# ACCOUNT_AUTHENTICATION_METHOD = 'email'
+EMAIL_REQUIRED = True
+ACCOUNT_CONFIRM_EMAIL_ON_GET = True
+ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = False
+ACCOUNT_EMAIL_CONFIRMATION_ANONYMOUS_REDIRECT_URL = 'https://musicroom.ml/management/email_redirect'
+ACCOUNT_EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL = ACCOUNT_EMAIL_CONFIRMATION_ANONYMOUS_REDIRECT_URL
+
+ACCOUNT_USERNAME_REQUIRED = False
+
+AUTH_USER_MODEL = 'auth.User'

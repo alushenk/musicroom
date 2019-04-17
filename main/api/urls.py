@@ -17,6 +17,8 @@ from rest_auth.views import (
 )
 from . import viewsets
 
+from allauth.account.views import ConfirmEmailView
+
 schema_view = get_swagger_view(title='MusicRoom API')
 
 # In the latest DRF, you need to explicitly set base_name in your viewset url if you don't have queryset defined.
@@ -29,6 +31,7 @@ router.register('votes', viewsets.VoteViewSet, base_name='Vote')
 
 urlpatterns = [
     path('management/channel.html', viewsets.channel),
+    path('management/email_redirect', viewsets.email_redirect),
     path('management/clear-data', viewsets.clear_data),
     path('management/fill-data', viewsets.fill_data),
 
@@ -46,7 +49,6 @@ urlpatterns = [
 
     # same shit as rest_auth.views, but with
     path('auth/registration/', RegisterView.as_view(), name='rest_register'),
-    path('auth/verify-email/', VerifyEmailView.as_view(), name='rest_verify_email'),
 
     # This url is used by django-allauth and empty TemplateView is
     # defined just to allow reverse() call inside app, for example when email
@@ -60,9 +62,7 @@ urlpatterns = [
     # view from:
     # django-allauth https://github.com/pennersr/django-allauth/blob/master/allauth/account/views.py
     # todo как я понял это стандартная вьюха для имейла из джанги которую можно переопределить
-    path('auth/account-confirm-email/<str:key>/', TemplateView.as_view(), name='account_confirm_email'),
-    # старая хуйня
-    # url(r'^account-confirm-email/(?P<key>[-:\w]+)/$', TemplateView.as_view(), name='account_confirm_email'),
+    path('auth/account-confirm-email/<str:key>/', ConfirmEmailView.as_view(), name='account_confirm_email'),
 
     # используется на случай если потеряли токен
     path('auth/token/', obtain_jwt_token),

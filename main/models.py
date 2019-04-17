@@ -3,20 +3,21 @@ from django.db import models
 # from music_room import settings
 # from django.contrib.auth.models import User
 
-# from django.contrib.auth import get_user_model
-#
-# User = get_user_model()
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
+# from django.contrib.auth.models import AbstractUser
 from django.contrib.postgres.fields import JSONField
 
 
-class User(AbstractUser):
-    class Meta:
-        managed = True
-        db_table = 'user'
-
-    def __str__(self):
-        return self.email
+# class User(AbstractUser):
+#     class Meta:
+#         managed = True
+#         db_table = 'user'
+#
+#     def __str__(self):
+#         return self.email
 
 
 #     def create_user(self, email, password=None):
@@ -107,7 +108,7 @@ class Playlist(models.Model):
     # добавлять треки
     # перетаскивать треки
     # нажимать кнопку play
-    participants = models.ManyToManyField('User', blank=True, db_table='playlist_participant',
+    participants = models.ManyToManyField(User, blank=True, db_table='playlist_participant',
                                           related_name='participant_playlists')
     # те кто создали плэйлист
     # могут:
@@ -117,8 +118,8 @@ class Playlist(models.Model):
     # class UserManager(BaseUserManager):
     # выставлять время и место
     # инвайтить новых юзеров (participants)
-    owners = models.ManyToManyField('User', blank=True, related_name='playlists')
-    creator = models.ForeignKey('User', null=True, blank=True, on_delete=models.CASCADE,
+    owners = models.ManyToManyField(User, blank=True, related_name='playlists')
+    creator = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE,
                                 related_name='playlist_creator')
 
     class Meta:

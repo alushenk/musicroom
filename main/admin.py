@@ -5,4 +5,4 @@ from .models import Playlist, Track, User
 
 admin.site.register(Playlist)
 admin.site.register(Track)
-admin.site.register(User)
+# admin.site.register(User)

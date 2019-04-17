@@ -28,13 +28,16 @@ from . import serializers
 from . import permissions
 from .filters import PlaylistFilter
 from .exceptions import TrackExistsException
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 
 @api_view(['GET'])
 @permission_classes(permission_classes=(AllowAny,))
 def channel(request, **kwargs):
-    capture_message(settings.EMAIL_HOST_PASSWORD)
-    capture_exception(settings.EMAIL_HOST_PASSWORD)
+    # capture_message(settings.EMAIL_HOST_PASSWORD)
+    # capture_exception(settings.EMAIL_HOST_PASSWORD)
 
     cache_expire = 60 * 60 * 24 * 365
     expiry_time = datetime.utcnow() + timedelta(days=365)
@@ -49,6 +52,17 @@ def channel(request, **kwargs):
     response['Expires'] = expiry_time.strftime("%a, %d %b %Y %H:%M:%S GMT")
     response['Cache-Control'] = 'maxage={}'.format(cache_expire)
     response['Pragma'] = 'public'
+    # response.mimetype = "text/plain"
+    return response
+
+
+@api_view(['GET'])
+@permission_classes(permission_classes=(AllowAny,))
+def email_redirect(request, **kwargs):
+    response = HttpResponse(
+        'Your email has been verified. You can close this page now',
+        content_type='text/html; charset=utf-8'
+    )
     # response.mimetype = "text/plain"
     return response
 
@@ -141,7 +155,7 @@ class GoogleLogin(SocialLoginView):
 
 
 class UserViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
-    queryset = models.User.objects.all()
+    queryset = User.objects.all()
     serializer_class = serializers.UserSerializer
     serializer_action_classes = {'list': serializers.UserSerializer,
                                  'retrieve': serializers.UserSerializer}
@@ -149,15 +163,15 @@ class UserViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
     @action(methods=['GET'], detail=False, url_path='user_search', url_name='user_search')
     def user_search(self, request):
         """Needs a request like: http://localhost:8000/api/users/user_search/?name=abc"""
-        queryset = models.User.objects.all().filter(username__icontains=request.query_params['username']).order_by('username')
+        queryset = User.objects.all().filter(username__icontains=request.query_params['username']).order_by('username')
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data)
 
     # эта штука нахуй не нужна так как все происходит через rest-auth ендпоинты
-    def get_permissions(self):
-        # allow non-authenticated user to create via POST
-        # todo is authenticated nado sdelat
-        return (AllowAny() if self.request.method == 'POST' else IsAuthenticated()),
+    # def get_permissions(self):
+    #     # allow non-authenticated user to create via POST
+    #     # todo is authenticated nado sdelat
+    #     return (AllowAny() if self.request.method == 'POST' else IsAuthenticated()),
 
 
 def get_track_order(track):
@@ -166,7 +180,7 @@ def get_track_order(track):
 
 class PlaylistViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
     queryset = models.Playlist.objects.all()
-    permission_classes = (IsAuthenticated, permissions.PlaylistPermissions) #, permissions.IsEmailConfirmed)
+    permission_classes = (IsAuthenticated, permissions.PlaylistPermissions)  # , permissions.IsEmailConfirmed)
     serializer_class = serializers.PlaylistSerializer
     serializer_action_classes = {'list': serializers.PlaylistSmallSerializer,
                                  'retrieve': serializers.PlaylistDetailSerializer,
@@ -250,7 +264,7 @@ class TrackViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         if models.Track.objects.all().filter(playlist=self.request.data['playlist']).filter(data__id=self.
-                    request.data['data']['id']).exists():
+                request.data['data']['id']).exists():
             raise TrackExistsException
         else:
             data = dict()
