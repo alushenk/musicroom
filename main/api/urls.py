@@ -1,13 +1,11 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from rest_framework_jwt.views import obtain_jwt_token
 from rest_framework_swagger.views import get_swagger_view
-from django.views.generic import TemplateView
 from rest_auth.registration.views import (
     SocialAccountListView,
     SocialAccountDisconnectView,
     RegisterView,
-    VerifyEmailView
+    LoginView
 )
 from rest_auth.views import (
     UserDetailsView,
@@ -34,6 +32,8 @@ urlpatterns = [
     path('management/email_redirect', viewsets.email_redirect),
     path('management/clear-data', viewsets.clear_data),
     path('management/fill-data', viewsets.fill_data),
+    path('management/account-email-verification-sent', viewsets.email_verification_sent,
+         name='account_email_verification_sent'),
 
     path('swagger/', schema_view),
     path('api/', include(router.urls)),
@@ -49,6 +49,7 @@ urlpatterns = [
 
     # same shit as rest_auth.views, but with
     path('auth/registration/', RegisterView.as_view(), name='rest_register'),
+    path('auth/login/', LoginView.as_view(), name='rest_login'),
 
     # This url is used by django-allauth and empty TemplateView is
     # defined just to allow reverse() call inside app, for example when email
@@ -63,9 +64,6 @@ urlpatterns = [
     # django-allauth https://github.com/pennersr/django-allauth/blob/master/allauth/account/views.py
     # todo как я понял это стандартная вьюха для имейла из джанги которую можно переопределить
     path('auth/account-confirm-email/<str:key>/', ConfirmEmailView.as_view(), name='account_confirm_email'),
-
-    # используется на случай если потеряли токен
-    path('auth/token/', obtain_jwt_token),
 
     path('auth/socialaccounts/', SocialAccountListView.as_view(), name='social_account_list'),
     path('auth/socialaccounts/<int:pk>/disconnect/', SocialAccountDisconnectView.as_view(),

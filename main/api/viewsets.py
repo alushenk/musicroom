@@ -69,6 +69,12 @@ def email_redirect(request, **kwargs):
 
 @api_view(['GET'])
 @permission_classes(permission_classes=(AllowAny,))
+def email_verification_sent(request, **kwargs):
+    return JsonResponse({'email-vefification-sent': 'OK'})
+
+
+@api_view(['GET'])
+@permission_classes(permission_classes=(AllowAny,))
 def clear_data(request, **kwargs):
     out = StringIO()
     management.call_command(

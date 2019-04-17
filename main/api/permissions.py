@@ -57,14 +57,3 @@ class TrackPermissions(permissions.BasePermission):
         elif view.action in ['destroy', 'update', 'partial_update']:
             return obj.creator is request.user
         return True
-
-
-from allauth.account.models import EmailAddress
-
-
-class IsEmailConfirmed(permissions.BasePermission):
-
-    message = 'You have to validate email.'
-
-    def has_permission(self, request, view, obj=None):
-        return EmailAddress.objects.filter(user=request.user, verified=True).exists()

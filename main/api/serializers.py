@@ -1,12 +1,15 @@
 from rest_framework import serializers
-from main.models import User, Playlist, Track, Vote
+from main.models import Playlist, Track, Vote
 from rest_framework.response import Response
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = '__all__'
+        fields = ('id', 'username', 'email')
 
     # def create(self, validated_data):
     #     user = User(
@@ -34,7 +37,6 @@ class VoteSerializer(serializers.ModelSerializer):
 
 
 class TrackCreateSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Track
         fields = ('id', 'playlist', 'data')
@@ -52,7 +54,8 @@ class TrackDetailSerializer(serializers.ModelSerializer):
 class PlaylistSmallSerializer(serializers.ModelSerializer):
     class Meta:
         model = Playlist
-        fields = ('id', 'is_public', 'name', 'place', "time_from", "time_to", "is_active", 'creator', "owners", "participants")
+        fields = (
+        'id', 'is_public', 'name', 'place', "time_from", "time_to", "is_active", 'creator', "owners", "participants")
 
 
 class PlaylistAddUsersSerializer(serializers.ModelSerializer):
