@@ -29,6 +29,7 @@ from . import permissions
 from .filters import PlaylistFilter
 from .exceptions import TrackExistsException
 from django.contrib.auth import get_user_model
+from requests import request as r
 
 User = get_user_model()
 
@@ -126,8 +127,11 @@ def fill_data(request, **kwargs):
 @permission_classes(permission_classes=(AllowAny,))
 def google_callback(request, **kwargs):
     code = request.GET['code']
+    # <костыль>
+    response = r('POST', 'http://localhost:8000/auth/google/', data={'code': code})
     # return redirect('/auth/google', data={'code': code})
-    return Response({'code': code})
+    # </костыль>
+    return Response(response.json())
 
 
 @api_view(['GET'])
