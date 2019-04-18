@@ -69,6 +69,30 @@ def email_redirect(request, **kwargs):
 
 @api_view(['GET'])
 @permission_classes(permission_classes=(AllowAny,))
+def password_reset_confirm(request, **kwargs):
+    print(kwargs)
+    h = {'uidb64': 'MQ', 'token': '55l-b632f36d63c3cc13c423'}
+    return JsonResponse(kwargs)
+    # data = """
+    #         <form action="http://localhost:8000/auth/password/reset/confrm/" method="post">
+    #             <label for="your_name">Your name: </label>
+    #             <input id="uid64" type="text" name="your_name" value="{}">
+    #             <input id="token" type="text" name="your_name" value="{}">
+    #             <input id="new_password1" type="text" name="your_name">
+    #             <input id="new_password2" type="text" name="your_name">
+    #             <input type="submit" value="OK">
+    #         </form>
+    # """.format(kwargs['uidb64'], kwargs['token'])
+    #
+    # response = HttpResponse(
+    #     data,
+    #     content_type='text/html; charset=utf-8'
+    # )
+    # return response
+
+
+@api_view(['GET'])
+@permission_classes(permission_classes=(AllowAny,))
 def email_verification_sent(request, **kwargs):
     return JsonResponse({'email-vefification-sent': 'OK'})
 

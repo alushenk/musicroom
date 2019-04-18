@@ -158,3 +158,40 @@ class VerifyEmailView(APIView, ConfirmEmailView):
         confirmation = self.get_object()
         confirmation.confirm(self.request)
         return Response({'detail': _('ok')}, status=status.HTTP_200_OK)
+        
+---------------------------------------------------------------------------------------
+
+POST /auth/password/reset
+{
+  "email": "wartoxy@gmail.com"
+}
+
+возвращает
+{
+  "detail": "Password reset e-mail has been sent."
+}
+
+и отправляет письмо со ссылкой на почту
+ссылка ведет на
+auth/password-reset/confirm/uidb64/token/
+
+который сейчас возвращает 
+{'uidb64': 'MQ', 'token': '55l-b632f36d63c3cc13c423'}
+
+но по идее это должна быть страница 
+(можно во вьюхе вернуть редирект на фронты, наверно можно сразу в конфиге указать куда после этого редиректить)
+с формой которая шлет POST запрос на 
+/auth/password/reset/confirm/
+
+с такими данными 
+{
+  "new_password1": "asdfsa324",
+  "new_password2": "asdfsa324",
+  "uid": "MQ",
+  "token": "55l-a5abac7edf49b4c7cca7"
+}
+
+uid и token берется из параметров реквеста
+
+после успешной отправки формы/post запроса пароль ресетится
+и нужно заново залогиниться (старый токен не работает)

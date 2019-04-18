@@ -39,17 +39,18 @@ urlpatterns = [
     path('api/', include(router.urls)),
 
     # URLs that do not require a session or valid token
-    # instead of importing all from url(r'^auth/', include('rest_auth.urls')) I added it manually
-    path('auth/password/reset/', PasswordResetView.as_view(), name='rest_password_reset'),
+    path('auth/password/reset/', PasswordResetView.as_view(), name='password_reset'),
+    path('auth/password-reset/confirm/<str:uidb64>/<str:token>/', viewsets.password_reset_confirm,
+         name='password_reset_confirm'),
     path('auth/password/reset/confirm/', PasswordResetConfirmView.as_view(), name='rest_password_reset_confirm'),
 
     # URLs that require a user to be logged in with a valid session / token.
-    path('auth/user/', UserDetailsView.as_view(), name='rest_user_details'),
-    path('auth/password/change/', PasswordChangeView.as_view(), name='rest_password_change'),
+    path('auth/user/', UserDetailsView.as_view(), name='user_details'),
+    path('auth/password/change/', PasswordChangeView.as_view(), name='password_change'),
 
     # same shit as rest_auth.views, but with
-    path('auth/registration/', RegisterView.as_view(), name='rest_register'),
-    path('auth/login/', LoginView.as_view(), name='rest_login'),
+    path('auth/registration/', RegisterView.as_view(), name='register'),
+    path('auth/login/', LoginView.as_view(), name='login'),
 
     # This url is used by django-allauth and empty TemplateView is
     # defined just to allow reverse() call inside app, for example when email

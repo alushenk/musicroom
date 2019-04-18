@@ -22,6 +22,30 @@ Content-Type: application/json
   "password": "q12we34rt56y"
 }
 
+### ресет пароля (старый токен останется валидным)
+
+POST {{host}}/auth/password/reset/
+Content-Type: application/json
+
+{
+  "email": "wartoxy@gmail.com"
+}
+
+### подтверждение ресета пароля (переходишь из письма).
+# старый токен остается валидным.
+# теперь чтобы получить новый токен надо вводить новый пароль, старый не принимает
+
+POST {{host}}/auth/password/reset/confirm/
+Content-Type: application/json
+
+{
+  "new_password1": "asdfsa324",
+  "new_password2": "asdfsa324",
+  "uid": "Mw",
+  "token": "55l-a609d79039dcfbae7c21"
+}
+
+
 ### текущий пользователь (профиль)
 
 GET {{host}}/auth/user
