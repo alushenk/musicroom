@@ -218,30 +218,35 @@ class PlaylistViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
     serializer_class = serializers.PlaylistSerializer
     serializer_action_classes = {'list': serializers.PlaylistSmallSerializer,
                                  'retrieve': serializers.PlaylistDetailSerializer,
-                                 'patch': serializers.PlaylistAddUsersSerializer}
+                                 'patch': serializers.PlaylistAddUsersSerializer,
+                                 'add_participant': serializers.PlaylistAddUsersSerializer,
+                                 'add_owner': serializers.PlaylistAddUsersSerializer,}
     filter_class = PlaylistFilter
 
     def retrieve(self, request, *args, **kwargs):
-        data = OrderedDict()
-        participant_list = list()
-        track_list = list()
+        # data = OrderedDict()
+        # participant_list = list()
+        # track_list = list()
 
         playlist = models.Playlist.objects.get(pk=kwargs['pk'])
 
-        for participant in playlist.participants.all():
-            participant_list.append(participant)
-
-        # TODO check why we've done this
-        for track in playlist.tracks.all():
-            track_info = dict()
-            vote_counter = track.votes.all().count()
-            track_info['id'] = track.id
-            track_info['order'] = track.order
-            track_info['votes_count'] = vote_counter
-            track_info['playlist'] = track.playlist
-            track_info['data'] = track.data
-            track_list.append(track_info)
-        track_list = sorted(track_list, key=get_track_order)
+        # for participant in playlist.participants.all():
+        #     participant_list.append(participant)
+        #
+        # # TODO check why we've done this
+        # for track in playlist.tracks.all():
+        #     track_info = dict()
+        #     vote_counter = track.votes.all().count()
+        #     track_info['id'] = track.id
+        #     track_info['order'] = track.order
+        #     track_info['votes_count'] = vote_counter
+        #     track_info['playlist'] = track.playlist
+        #     track_info['data'] = track.data
+        #     track_list.append(track_info)
+        # track_list = sorted(track_list, key=get_track_order)
+        serializer_class = self.get_serializer_class()
+        serializer(instance=playlist, context={'request': self.request})
+        return Response(s.data)
 
         data['name'] = playlist.name
         data['is_public'] = playlist.is_public
@@ -265,6 +270,28 @@ class PlaylistViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
         playlist.participants.add(*request.data['participants'])
         serializer = serializers.PlaylistAddUsersSerializer(playlist)
         return Response(serializer.data)
+
+    # @action(methods=['PATCH'], detail=True, url_path='unfollow', url_name='unfollow')
+    # def unfollow(self, request, pk=None):
+    #     playlist = self.queryset.get(pk=pk)
+    #     self.check_object_permissions(request, playlist)
+    #     print(request.query_params)
+    #     for participant in playlist.participants.all():
+    #         if participant.id == request.query_params["id"]:
+    #             playlist.participants.all().delete(participant)
+    #         print(participant)
+    #     serializer = serializers.PlaylistAddUsersSerializer(playlist)
+    #     return Response(serializer.data)
+
+    @action(methods=['DELETE'], detail=True, url_path='unfollow', url_name='unfollow')
+    def unfollow(self, request, pk=None, user_id=None):
+        playlist = self.queryset.get(pk=pk)
+        print(user_id)
+        # self.check_object_permissions(request, playlist)
+        for participant in playlist.participants.all():
+            if participant.id == user_id:
+                participant.remove()
+        return Response(status.HTTP_200_OK)
 
     @action(methods=['PATCH'], detail=True, url_path='add_owner', url_name='add_owner')
     def add_owner(self, request, pk=None):
@@ -332,3 +359,22 @@ class VoteViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
         except:
             serializer.data['status'] = "Instance deleted"
             print(serializer.data)
+
+
+
+from rest_framework.generics import GenericAPIView
+from rest_framework.mixins import DestroyModelMixin
+
+
+class TestView(GenericAPIView):
+
+    def delete(self, request, *args, **kwargs):
+        playlist_pk = kwargs.get('pk')
+        user_id = kwargs.get('user_id')
+        playlist = models.Playlist.objects.get(pk=playlist_pk)
+        playlist.participants.remove(models.User.objects.get(pk=user_id))
+        # self.check_object_permissions(request, playlist)
+        # for participant in playlist.participants.all():
+        #     if participant.id == user_id:
+        #         participant.remove()
+        return Response({}, status=status.HTTP_204_NO_CONTENT)

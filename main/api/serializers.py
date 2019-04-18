@@ -43,12 +43,16 @@ class TrackCreateSerializer(serializers.ModelSerializer):
 
 
 class TrackDetailSerializer(serializers.ModelSerializer):
-    votes_count = serializers.IntegerField(read_only=True)
+    # votes_count = serializers.IntegerField(read_only=True)
     votes = VoteSerializer(many=True, read_only=True)
+    votes_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Track
         fields = ('id', 'playlist', 'order', 'votes_count', 'votes', 'data')
+
+    def get_votes_count(self, obj):
+        return obj.votes.count()
 
 
 class PlaylistSmallSerializer(serializers.ModelSerializer):
@@ -77,13 +81,21 @@ class PlaylistSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Playlist
-        fields = ('id', 'name', 'is_public', 'is_active', 'place', 'time_from', 'time_to')
+        fields = ('id', 'name', 'is_public', 'is_active', 'place', 'time_from', 'time_to', '')
 
 
 class PlaylistDetailSerializer(serializers.ModelSerializer):
     tracks = TrackDetailSerializer(many=True, read_only=True)
+    actions = serializers.SerializerMethodField()#method_name='actions')
 
     class Meta:
         model = Playlist
         fields = ('id', 'name', 'is_public', 'place', "time_from", "time_to", 'participants', 'owners', 'tracks',
-                  'creator')
+                  'creator', 'actions')
+
+    def get_actions(self, obj):
+        actions_dict = dict.fromkeys(['update', 'destroy', 'add_owner', 'partial_update'], False)
+        request = self.context.get('request')
+        if request.user in obj.participants.all():
+            actions_dict.update(dict.fromkeys(['update', 'destroy', 'add_owner', 'partial_update'], True))
+        return actions_dict

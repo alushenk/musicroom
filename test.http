@@ -5,56 +5,32 @@
 POST {{host}}/auth/registration/
 Content-Type: application/json
 
-//{
-//  "username": "wartoxy@gmail.com",
-//  "email": "wartoxy@gmail.com",
-//  "password1": "q12we34rt56y",
-//  "password2": "q12we34rt56y"
-//}
 {
-  "username": "antoha",
-  "email": "lush.antony@gmail.com",
+  "username": "wartoxy@gmail.com",
+  "email": "wartoxy@gmail.com",
   "password1": "q12we34rt56y",
   "password2": "q12we34rt56y"
 }
 
+### verify email
+
+POST {{host}}/auth/verify-email/
+Content-Type: application/json
+
+{
+  "key": "MQ:1hFnhO:CuCgGhBHg02jFdDeP5z04PER2cs"
+}
+
 ### вводите сюда логин и пароль - получаете в ответ токен
 
-POST {{host}}/auth/login/
+POST {{host}}/auth/token/
 Content-Type: application/json
 
-//{
-//  "email": "wartoxy@gmail.com",
-//  "password": "asdfsa324"
-//}
 {
-  "email": "lush.antony@gmail.com",
+  "username": "wartoxy@gmail.com",
+  "email": "wartoxy@gmail.com",
   "password": "q12we34rt56y"
 }
-
-### ресет пароля (старый токен останется валидным)
-
-POST {{host}}/auth/password/reset/
-Content-Type: application/json
-
-{
-  "email": "wartoxy@gmail.com"
-}
-
-### подтверждение ресета пароля (переходишь из письма).
-# старый токен остается валидным.
-# теперь чтобы получить новый токен надо вводить новый пароль, старый не принимает
-
-POST {{host}}/auth/password/reset/confirm/
-Content-Type: application/json
-
-{
-  "new_password1": "asdfsa324",
-  "new_password2": "asdfsa324",
-  "uid": "Mw",
-  "token": "55l-a609d79039dcfbae7c21"
-}
-
 
 ### текущий пользователь (профиль)
 
@@ -65,6 +41,7 @@ Content-Type: application/json
 ###
 
 GET {{host}}/auth/google/url
+Authorization: JWT {{token}}
 Content-Type: application/json
 
 ###
@@ -75,7 +52,7 @@ Content-Type: application/json
 
 ###
 
-GET {{host}}/api/playlists/
+GET {{host}}/api/playlists/1/
 Authorization: JWT {{token}}
 Content-Type: application/json
 
@@ -102,12 +79,6 @@ GET {{host}}/api/tracks/
 Authorization: JWT {{token}}
 Content-Type: application/json
 
-###
-
-GET {{host}}/api/users/
-Authorization: JWT {{token}}
-Content-Type: application/json
-
 ### удалить все данные из базы
 
 GET {{host}}/management/clear-data
@@ -120,8 +91,18 @@ Content-Type: application/json
 
 ###
 
-GET {{host}}/api/users/user_search/?name=a
+DELETE {{host}}/api/playlists/1/users/4/
 Authorization: JWT {{token}}
 Content-Type: application/json
 
 ###
+
+PATCH {{host}}/api/playlists/1/add_participant/
+Authorization: JWT {{token}}
+Content-Type: application/json
+
+{
+  "participants": [4]
+}
+###
+

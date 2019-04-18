@@ -45,6 +45,8 @@ class PlaylistPermissions(permissions.BasePermission):
         else:
             if view.action in ['retrieve', 'update', 'destroy', 'add_owner', 'partial_update', 'add_participant']:
                 return request.user in obj.owners.all()
+            if view.action == "unfollow":
+                return request.user in obj.participants.all() or request.user in obj.owners.all()
 
 
 class TrackPermissions(permissions.BasePermission):
