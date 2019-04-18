@@ -128,7 +128,8 @@ def fill_data(request, **kwargs):
 def google_callback(request, **kwargs):
     code = request.GET['code']
     # <костыль>
-    response = r('POST', 'http://localhost:8000/auth/google/', data={'code': code})
+    # response = r('POST', 'http://localhost:8000/auth/google/', data={'code': code})
+    response = r('POST', 'https://musicroom.ml/auth/google/', data={'code': code})
     # return redirect('/auth/google', data={'code': code})
     # </костыль>
     return Response(response.json())
@@ -141,7 +142,7 @@ def google_url(request, **kwargs):
 
     client_id = '205782653310-fjjullvs7cklq6su4qp0o7e8def79vfg.apps.googleusercontent.com'
     redirect_uri = 'https://musicroom.ml/auth/google/callback/'
-    redirect_uri = 'http://localhost:8000/auth/google/callback/'
+    # redirect_uri = 'http://localhost:8000/auth/google/callback/'
 
     authorization_base_url = 'https://accounts.google.com/o/oauth2/v2/auth'
     scope = [
@@ -172,7 +173,8 @@ class GoogleLogin(SocialLoginView):
     client_class = OAuth2Client
     # callback_url = 'https://test-bot.morbax.com/accounts/google/login/callback/'
     # callback_url = 'https://test-bot.morbax.com/rest-auth/google/callback/'
-    callback_url = 'http://localhost:8000/auth/google/callback/'
+    # callback_url = 'http://localhost:8000/auth/google/callback/'
+    callback_url = 'https://musicroom.ml/auth/google/callback/'
 
     # @action(methods=['GET'], detail=True, url_name='oauth_callback', url_path='oauth_callback')
     # def callback_url(self, request):
