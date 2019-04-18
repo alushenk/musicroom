@@ -74,8 +74,8 @@ urlpatterns = [
     path('auth/google/', viewsets.GoogleLogin.as_view(), name='gg_login'),
 
     # todo вот это вот моя дичь которую надо потестить и допилить
-    path('auth/google/callback/', viewsets.callback_url),
-    path('auth/google/url/', viewsets.login_url),
+    path('auth/google/callback/', viewsets.google_callback),
+    path('auth/google/url/', viewsets.google_url),
 
     # todo проверить эту хуйню и добавить если надо
     #  если /auth/socialaccounts/ не делает то же самое или даже больше

@@ -5,9 +5,15 @@
 POST {{host}}/auth/registration/
 Content-Type: application/json
 
+//{
+//  "username": "wartoxy@gmail.com",
+//  "email": "wartoxy@gmail.com",
+//  "password1": "q12we34rt56y",
+//  "password2": "q12we34rt56y"
+//}
 {
-  "username": "wartoxy@gmail.com",
-  "email": "wartoxy@gmail.com",
+  "username": "antoha",
+  "email": "lush.antony@gmail.com",
   "password1": "q12we34rt56y",
   "password2": "q12we34rt56y"
 }
@@ -17,8 +23,12 @@ Content-Type: application/json
 POST {{host}}/auth/login/
 Content-Type: application/json
 
+//{
+//  "email": "wartoxy@gmail.com",
+//  "password": "asdfsa324"
+//}
 {
-  "email": "wartoxy@gmail.com",
+  "email": "lush.antony@gmail.com",
   "password": "q12we34rt56y"
 }
 
@@ -55,7 +65,6 @@ Content-Type: application/json
 ###
 
 GET {{host}}/auth/google/url
-Authorization: JWT {{token}}
 Content-Type: application/json
 
 ###
@@ -107,6 +116,12 @@ Content-Type: application/json
 ### заполнить тестовыми (аналогично ./manage.py add_content; main/management/commands/add_content.py)
 
 GET {{host}}/management/fill-data
+Content-Type: application/json
+
+###
+
+GET {{host}}/api/users/user_search/?name=a
+Authorization: JWT {{token}}
 Content-Type: application/json
 
 ###

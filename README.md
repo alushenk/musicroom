@@ -98,28 +98,6 @@ viewsets.login_url
     :param kwargs:
     :return:
     """
-    
-    
-viewsets.TrackViewSet.perform_create
-
-data['order'] = (last_order['order__max'] if last_order['order__max'] else 0) + 1
-
----------------------------------------------------------------------------------------
-
-для плейлиста
-
-owner:
-- add participant
-- add owner
-- rename
-- delete
-
-participant:
-- add track
-- vote for track
-
-creator:
-- delete?
 
 ---------------------------------------------------------------------------------------
 
@@ -135,7 +113,7 @@ capture_exception('hello suka blyad')
 вот так вот красиво и просто можно дописат ебучий GET в 
 /Users/anton/Documents/unit/projects/music_room/venv/lib/python3.7/site-packages/rest_auth/registration/views.py
 
-но ещё проще использовать allauth.account.views.ConfirmEmailView
+но ещё проще использовать allauth.account.views.ConfirmEmailView (так и сделал)
 
 class VerifyEmailView(APIView, ConfirmEmailView):
     permission_classes = (AllowAny,)
@@ -160,6 +138,7 @@ class VerifyEmailView(APIView, ConfirmEmailView):
         return Response({'detail': _('ok')}, status=status.HTTP_200_OK)
         
 ---------------------------------------------------------------------------------------
+СБРОС ПАРОЛЯ
 
 POST /auth/password/reset
 {
@@ -195,3 +174,35 @@ uid и token берется из параметров реквеста
 
 после успешной отправки формы/post запроса пароль ресетится
 и нужно заново залогиниться (старый токен не работает)
+
+---------------------------------------------------------------------------------------
+
+1. получить ссылку для авторизации через гугол можно по ссылке 
+GET /auth/google/url
+также можно захуярить ее в конфиг так как она сейчас статическая (может разве что сделаю разные домены для dev & prod)
+
+2. перейти по ебучей ссылке (открывается в браузере)
+3. выбрать свой гуголаккаунт
+4. гугол редиректит на /auth/google/callback/
+5. вернется json хуйня вида
+{"code":"4/MAES8XCEF6i-bVDV0wF0TtBX92ePfQjwQHkakT1SrU5-vxkI1xqKsgF0r_eyfjHUf2Lu7O_RqmHbwAL4WdEy9Ig"}
+
+6. пихнуть эту хуйню сюда
+POST /auth/google/
+{
+  "code": "4/MAElD-DBrPdGbQblN9Pd0BZ3OQeN-iTGOajhvMRp6QUY6GWiD0P6pOdmP0WQmOmCSI7gEAswiD5pmqExApNgKOg"
+}
+
+возвращает
+{
+  "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjozLCJ1c2VybmFtZSI6Imx1c2guYW50b255IiwiZXhwIjoxNTU1NjAyODc1LCJlbWFpbCI6Imx1c2guYW50b255QGdtYWlsLmNvbSJ9.ojanK0nJ-yNMIehbiWcQ1ZBwxFDZqdfPmTTyaHHYys4",
+  "user": {
+    "pk": 3,
+    "username": "lush.antony",
+    "email": "lush.antony@gmail.com",
+    "first_name": "Антон",
+    "last_name": "Люшенко"
+  }
+}
+
+и юзер сразу с first_name & last_name и подтвержденным имейлом

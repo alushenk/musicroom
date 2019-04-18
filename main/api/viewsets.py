@@ -9,7 +9,7 @@ from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
 from rest_auth.registration.views import SocialLoginView
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
 from rest_framework.decorators import api_view
-from django.http import JsonResponse, HttpResponse
+from django.http import HttpResponse
 from datetime import datetime, timedelta
 from sentry_sdk import capture_message
 from sentry_sdk import capture_exception
@@ -72,7 +72,7 @@ def email_redirect(request, **kwargs):
 def password_reset_confirm(request, **kwargs):
     print(kwargs)
     h = {'uidb64': 'MQ', 'token': '55l-b632f36d63c3cc13c423'}
-    return JsonResponse(kwargs)
+    return Response(kwargs)
     # data = """
     #         <form action="http://localhost:8000/auth/password/reset/confrm/" method="post">
     #             <label for="your_name">Your name: </label>
@@ -94,7 +94,7 @@ def password_reset_confirm(request, **kwargs):
 @api_view(['GET'])
 @permission_classes(permission_classes=(AllowAny,))
 def email_verification_sent(request, **kwargs):
-    return JsonResponse({'email-vefification-sent': 'OK'})
+    return Response({'email-vefification-sent': 'OK'})
 
 
 @api_view(['GET'])
@@ -107,7 +107,7 @@ def clear_data(request, **kwargs):
         stdout=out
     )
     value = out.getvalue()
-    return JsonResponse({'database-clear': 'OK', 'details': value})
+    return Response({'database-clear': 'OK', 'details': value})
 
 
 @api_view(['GET'])
@@ -119,29 +119,25 @@ def fill_data(request, **kwargs):
         stdout=out
     )
     value = out.getvalue()
-    return JsonResponse({'database-fill': 'OK', 'details': value})
+    return Response({'database-fill': 'OK', 'details': value})
 
 
 @api_view(['GET'])
-# @authentication_classes([])
-# @permission_classes([])
-def callback_url(request, **kwargs):
-    print(request.data)
-    print(kwargs)
+@permission_classes(permission_classes=(AllowAny,))
+def google_callback(request, **kwargs):
     code = request.GET['code']
-    # code = kwargs['code']
-    return JsonResponse({'code': code})
-
-
-import unicodedata
+    # return redirect('/auth/google', data={'code': code})
+    return Response({'code': code})
 
 
 @api_view(['GET'])
-def login_url(request, **kwargs):
+@permission_classes(permission_classes=(AllowAny,))
+def google_url(request, **kwargs):
     from requests_oauthlib import OAuth2Session
 
     client_id = '205782653310-fjjullvs7cklq6su4qp0o7e8def79vfg.apps.googleusercontent.com'
-    redirect_uri = 'https://musicroom.ml/rest-auth/google/callback/'
+    redirect_uri = 'https://musicroom.ml/auth/google/callback/'
+    redirect_uri = 'http://localhost:8000/auth/google/callback/'
 
     authorization_base_url = 'https://accounts.google.com/o/oauth2/v2/auth'
     scope = [
@@ -171,7 +167,8 @@ class GoogleLogin(SocialLoginView):
     adapter_class = GoogleOAuth2Adapter
     client_class = OAuth2Client
     # callback_url = 'https://test-bot.morbax.com/accounts/google/login/callback/'
-    callback_url = 'https://test-bot.morbax.com/rest-auth/google/callback/'
+    # callback_url = 'https://test-bot.morbax.com/rest-auth/google/callback/'
+    callback_url = 'http://localhost:8000/auth/google/callback/'
 
     # @action(methods=['GET'], detail=True, url_name='oauth_callback', url_path='oauth_callback')
     # def callback_url(self, request):
@@ -193,7 +190,8 @@ class UserViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
     @action(methods=['GET'], detail=False, url_path='user_search', url_name='user_search')
     def user_search(self, request):
         """Needs a request like: http://localhost:8000/api/users/user_search/?name=abc"""
-        queryset = User.objects.all().filter(username__icontains=request.query_params['username']).order_by('username')
+        print(request.query_params['name'])
+        queryset = User.objects.filter(username__icontains=request.query_params['name']).order_by('username').all()
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data)
 
