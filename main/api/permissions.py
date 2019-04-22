@@ -28,7 +28,7 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         if request.method in permissions.SAFE_METHODS:
             return True
-        return request.user in obj.owners
+        return request.user in obj.owners.all()
 
 
 class PlaylistPermissions(permissions.BasePermission):
@@ -38,12 +38,30 @@ class PlaylistPermissions(permissions.BasePermission):
 
     def has_object_permission(self, request, view, obj=None):
         if obj.is_public is True:
-            if view.action in ['add_participant', 'retrieve']:
+            if view.action in ['add_participant', 'retrieve', 'list']:
                 return True
             elif view.action in ['update', 'destroy', 'add_owner', 'partial_update']:
                 return request.user in obj.owners.all()
         else:
             if view.action in ['retrieve', 'update', 'destroy', 'add_owner', 'partial_update', 'add_participant']:
+                return request.user in obj.owners.all()
+            if view.action == "unfollow":
+                return request.user in obj.participants.all() or request.user in obj.owners.all()
+
+
+class PlaylistViewPermissions(permissions.BasePermission):
+
+    # def has_permission(self, request, view):
+    #     return request.user.permissions.is_authenticated
+
+    def has_object_permission(self, request, view, obj=None):
+        if obj.is_public is True:
+            if request.method in ['PATCH']:
+                return True
+            elif request.method in ['DELETE']:
+                return request.user in obj.owners.all()
+        else:
+            if request.method in ['PATCH', 'DELETE']:
                 return request.user in obj.owners.all()
 
 
