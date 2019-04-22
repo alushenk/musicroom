@@ -1,8 +1,9 @@
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from custom_utils import MultiSerializerViewSetMixin
-from collections import OrderedDict
 from django.db.models import Max
+from rest_framework.generics import GenericAPIView
+
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from allauth.socialaccount.providers.facebook.views import FacebookOAuth2Adapter
 from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
@@ -30,6 +31,7 @@ from .filters import PlaylistFilter
 from .exceptions import TrackExistsException
 from django.contrib.auth import get_user_model
 from requests import request as r
+from django.shortcuts import get_object_or_404
 
 User = get_user_model()
 
@@ -208,114 +210,53 @@ class UserViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
     #     return (AllowAny() if self.request.method == 'POST' else IsAuthenticated()),
 
 
-def get_track_order(track):
-    return track['order']
-
-
 class PlaylistViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
     queryset = models.Playlist.objects.all()
-    permission_classes = (IsAuthenticated, permissions.PlaylistPermissions)  # , permissions.IsEmailConfirmed)
+    permission_classes = (IsAuthenticated, permissions.PlaylistPermissions)
     serializer_class = serializers.PlaylistSerializer
     serializer_action_classes = {'list': serializers.PlaylistSmallSerializer,
                                  'retrieve': serializers.PlaylistDetailSerializer,
                                  'patch': serializers.PlaylistAddUsersSerializer,
                                  'add_participant': serializers.PlaylistAddUsersSerializer,
-                                 'add_owner': serializers.PlaylistAddUsersSerializer,}
+                                 'add_owner': serializers.PlaylistAddUsersSerializer,
+                                 'my_playlists': serializers.PlaylistDetailSerializer}
     filter_class = PlaylistFilter
 
-    def retrieve(self, request, *args, **kwargs):
-        # data = OrderedDict()
-        # participant_list = list()
-        # track_list = list()
-
-        playlist = models.Playlist.objects.get(pk=kwargs['pk'])
-
-        # for participant in playlist.participants.all():
-        #     participant_list.append(participant)
-        #
-        # # TODO check why we've done this
-        # for track in playlist.tracks.all():
-        #     track_info = dict()
-        #     vote_counter = track.votes.all().count()
-        #     track_info['id'] = track.id
-        #     track_info['order'] = track.order
-        #     track_info['votes_count'] = vote_counter
-        #     track_info['playlist'] = track.playlist
-        #     track_info['data'] = track.data
-        #     track_list.append(track_info)
-        # track_list = sorted(track_list, key=get_track_order)
+    def list(self, request, *args, **kwargs):
+        """Returns the list of playlists where is_public=True. The endpoint for playlist search"""
+        playlists = self.queryset.filter(is_public=True)
         serializer_class = self.get_serializer_class()
-        serializer(instance=playlist, context={'request': self.request})
-        return Response(s.data)
-
-        data['name'] = playlist.name
-        data['is_public'] = playlist.is_public
-        data['is_active'] = playlist.is_active
-        data['place'] = playlist.place
-        data['name'] = playlist.name
-        data['time_to'] = playlist.time_to
-        data['time_from'] = playlist.time_from
-        data['owners'] = playlist.owners
-        data['tracks'] = track_list
-        data['participants'] = participant_list
-        data['creator'] = playlist.creator
-
-        serializer = self.serializer_action_classes['retrieve'](data)
+        serializer = serializer_class(playlists, many=True)
         return Response(serializer.data)
 
-    @action(methods=['PATCH'], detail=True, url_path='add_participant', url_name='add_participant')
-    def add_participant(self, request, pk=None):
-        playlist = self.queryset.get(pk=pk)
+    def retrieve(self, request, *args, **kwargs):
+        """Returns the playlist instance. If playlists "is_public=False" user has to be in playlist's
+        Owners/Participants"""
+        playlist = get_object_or_404(self.queryset, pk=kwargs['pk'])
         self.check_object_permissions(request, playlist)
-        playlist.participants.add(*request.data['participants'])
-        serializer = serializers.PlaylistAddUsersSerializer(playlist)
+        serializer_class = self.get_serializer_class()
+        serializer = serializer_class(instance=playlist, context={'request': self.request})
         return Response(serializer.data)
 
-    # @action(methods=['PATCH'], detail=True, url_path='unfollow', url_name='unfollow')
-    # def unfollow(self, request, pk=None):
-    #     playlist = self.queryset.get(pk=pk)
+    # @action(methods=['PATCH'], detail=True, url_path='add_participant', url_name='add_participant')
+    # def add_participant(self, request, pk=None):
+    #     playlist = get_object_or_404(self.queryset, pk=pk)
     #     self.check_object_permissions(request, playlist)
-    #     print(request.query_params)
-    #     for participant in playlist.participants.all():
-    #         if participant.id == request.query_params["id"]:
-    #             playlist.participants.all().delete(participant)
-    #         print(participant)
-    #     serializer = serializers.PlaylistAddUsersSerializer(playlist)
+    #     playlist.participants.add(*request.data['participants'])
+    #     serializer_class = self.get_serializer_class()
+    #     serializer = serializer_class(playlist)
+    #     return Response(serializer.data)
+    #
+    # @action(methods=['PATCH'], detail=True, url_path='add_owner', url_name='add_owner')
+    # def add_owner(self, request, pk=None):
+    #     playlist = self.queryset.filter(pk=pk)
+    #     self.check_object_permissions(request, playlist)
+    #     playlist.owners.add(*request.data['owners'])
+    #     serializer_class = self.get_serializer_class()
+    #     serializer = serializer_class(playlist)
     #     return Response(serializer.data)
 
-    @action(methods=['DELETE'], detail=True, url_path='unfollow', url_name='unfollow')
-    def unfollow(self, request, pk=None, user_id=None):
-        playlist = self.queryset.get(pk=pk)
-        print(user_id)
-        # self.check_object_permissions(request, playlist)
-        for participant in playlist.participants.all():
-            if participant.id == user_id:
-                participant.remove()
-        return Response(status.HTTP_200_OK)
 
-    @action(methods=['PATCH'], detail=True, url_path='add_owner', url_name='add_owner')
-    def add_owner(self, request, pk=None):
-        playlist = self.queryset.get(pk=pk)
-        self.check_object_permissions(request, playlist)
-        playlist.owners.add(*request.data['owners'])
-        serializer = serializers.PlaylistAddUsersSerializer(playlist)
-        return Response(serializer.data)
-
-    @action(methods=['GET'], detail=False, url_path='my_playlists', url_name='my_playlists')
-    def get_my_playlist(self, request):
-        """DOESN'T WORK AT THE MOMENT"""
-        playlists = self.queryset.all()
-        playlist_ids = list()
-        for playlist in playlists:
-            for owner in playlist.owners.all():
-                if owner.id is request.user.id:
-                    playlist_ids.append(playlist.id)
-        playlists = playlists.filter(id__in=playlist_ids)
-        serializer = self.serializer_class(playlists, many=True)
-        return Response(serializer.data)
-
-
-# @verified_email_required
 class TrackViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated, permissions.TrackPermissions)
     queryset = models.Track.objects.all()
@@ -324,15 +265,15 @@ class TrackViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
                                  'retrieve': serializers.TrackDetailSerializer}
 
     def perform_create(self, serializer):
-        if models.Track.objects.all().filter(playlist=self.request.data['playlist']).filter(data__id=self.
+        if self.queryset.filter(playlist=self.request.data['playlist']).filter(data__id=self.
                 request.data['data']['id']).exists():
             raise TrackExistsException
         else:
             data = dict()
-            data['playlist'] = models.Playlist.objects.get(id=self.request.data['playlist'])
+            data['playlist'] = models.Playlist.objects.all().filter(id=self.request.data['playlist'])
             data['creator'] = self.request.user
             self.check_object_permissions(self.request, data['playlist'])
-            last_order = models.Track.objects.all().filter(playlist=data['playlist']).aggregate(Max('order'))
+            last_order = self.queryset.filter(playlist=data['playlist']).aggregate(Max('order'))
             if last_order['order__max']:
                 data['order'] = last_order['order__max'] + 1
             else:
@@ -352,8 +293,10 @@ class VoteViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
                                  'retrieve': serializers.VoteSerializer}
 
     def perform_create(self, serializer):
+        """Creates a Vote instance. The endpoint for Like/Dislike action. The user can like track
+        and by using this url again user can take his like of particular track"""
         data = dict()
-        data['track'] = models.Track.objects.get(id=self.request.data['track'])
+        data['track'] = models.Track.objects.all().filter(id=self.request.data['track'])
         try:
             serializer.save(track=data['track'], user=self.request.user)
         except:
@@ -361,20 +304,107 @@ class VoteViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
             print(serializer.data)
 
 
-
-from rest_framework.generics import GenericAPIView
-from rest_framework.mixins import DestroyModelMixin
-
-
-class TestView(GenericAPIView):
+class UnfollowView(GenericAPIView):
+    permission_classes = (IsAuthenticated, permissions.IsOwnerOrReadOnly)
 
     def delete(self, request, *args, **kwargs):
-        playlist_pk = kwargs.get('pk')
+        """ Use to Unfollow the playlist. Deletes user both from Owners and  Participants.
+        The endpoint for Unfollow action."""
+
+        playlist_id = kwargs.get('pk')
         user_id = kwargs.get('user_id')
-        playlist = models.Playlist.objects.get(pk=playlist_pk)
-        playlist.participants.remove(models.User.objects.get(pk=user_id))
-        # self.check_object_permissions(request, playlist)
-        # for participant in playlist.participants.all():
-        #     if participant.id == user_id:
-        #         participant.remove()
-        return Response({}, status=status.HTTP_204_NO_CONTENT)
+        queryset = models.Playlist.objects.all()
+        user_to_remove = get_object_or_404(models.User.objects.all(), pk=user_id)
+        playlist = get_object_or_404(queryset, pk=playlist_id)
+        if user_to_remove in playlist.participants.all():
+            if user_to_remove != request.user:
+                self.check_object_permissions(request, playlist)
+            playlist.participants.remove(user_to_remove)
+        if user_to_remove in playlist.owners.all():
+            playlist.owners.remove(user_to_remove)
+        return Response(data={"User unfollowed the playlist (removed from participants/owners)"},
+                        status=status.HTTP_204_NO_CONTENT)
+
+
+class MyPlaylistsView(GenericAPIView):
+    permission_classes = (IsAuthenticated)
+
+    def get(self, request, *args, **kwargs):
+        """Returns playlists where current user is in Owners and/or Participants. The endpoint for My Playlists"""
+        queryset = models.Playlist.objects.all()
+        user_id = kwargs.get('user_id')
+        playlist_ids = list()
+        for playlist in queryset:
+            for owner in playlist.owners.all():
+                if owner.id is user_id:
+                    playlist_ids.append(playlist.id)
+            for participant in playlist.participants.all():
+                if participant.id is user_id:
+                    playlist_ids.append(playlist.id)
+        playlists = queryset.filter(id__in=playlist_ids)
+        serializer = serializers.PlaylistSmallSerializer(playlists, many=True, read_only=True)
+        return Response(serializer.data)
+
+
+class AddParticipantToPlaylistView(GenericAPIView):
+    permission_classes = (IsAuthenticated, permissions.PlaylistViewPermissions)
+    serializer_class = serializers.PlaylistDetailSerializer
+
+    def patch(self, request, *args, **kwargs):
+        """ Use to add user to the playlist's participants"""
+
+        playlist_id = kwargs.get("pk")
+        user_id = kwargs.get("user_id")
+        queryset = models.Playlist.objects.all()
+        playlist = get_object_or_404(queryset, pk=playlist_id)
+        user_to_add = get_object_or_404(models.User.objects.all(), pk=user_id)
+        self.check_object_permissions(request, playlist)
+        playlist.participants.add(user_to_add)
+        serializer_class = self.get_serializer_class()
+        serializer = serializer_class(playlist, context={'request': self.request})
+        return Response(serializer.data)
+
+    def delete(self, request, *args, **kwargs):
+        """ Use to delete participant from the playlist. Permissions: only owners can use"""
+
+        playlist_id = kwargs.get('pk')
+        user_id = kwargs.get('user_id')
+        queryset = models.Playlist.objects.all()
+        user_to_remove = get_object_or_404(models.User.objects.all(), pk=user_id)
+        playlist = get_object_or_404(queryset, pk=playlist_id)
+        self.check_object_permissions(request, playlist)
+        if user_to_remove in playlist.participants.all():
+            playlist.participants.remove(user_to_remove)
+        return Response(data={"User deleted from the playlist's participants"}, status=status.HTTP_204_NO_CONTENT)
+
+
+class AddOwnerToPlaylistView(GenericAPIView):
+    permission_classes = (IsAuthenticated, permissions.IsOwnerOrReadOnly)
+    serializer_class = serializers.PlaylistDetailSerializer
+
+    def patch(self, request, *args, **kwargs):
+        """ Use to add user to the playlist's owners"""
+        playlist_id = kwargs.get("pk")
+        user_id = kwargs.get("user_id")
+        queryset = models.Playlist.objects.all()
+        playlist = get_object_or_404(queryset, pk=playlist_id)
+        user_to_add = get_object_or_404(models.User.objects.all(), pk=user_id)
+        self.check_object_permissions(request, playlist)
+        playlist.owners.add(user_to_add)
+        serializer_class = self.get_serializer_class()
+        serializer = serializer_class(playlist, context={'request': self.request})
+        return Response(serializer.data)
+
+    def delete(self, request, *args, **kwargs):
+        """ Use to delete owner from the playlist. Permissions: only owners can use"""
+
+        playlist_id = kwargs.get('pk')
+        user_id = kwargs.get('user_id')
+        queryset = models.Playlist.objects.all()
+        user_to_remove = get_object_or_404(models.User.objects.all(), pk=user_id)
+        playlist = get_object_or_404(queryset, pk=playlist_id)
+        self.check_object_permissions(request, playlist)
+        if user_to_remove in playlist.owners.all():
+            playlist.owners.remove(user_to_remove)
+        return Response(data={"User unfollowed the playlist (removed from participants/owners)"},
+                        status=status.HTTP_204_NO_CONTENT)

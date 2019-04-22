@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from main.models import Playlist, Track, Vote
-from rest_framework.response import Response
 from django.contrib.auth import get_user_model
+from django.db.models import Count
 
 User = get_user_model()
 
@@ -43,23 +43,18 @@ class TrackCreateSerializer(serializers.ModelSerializer):
 
 
 class TrackDetailSerializer(serializers.ModelSerializer):
-    # votes_count = serializers.IntegerField(read_only=True)
     votes = VoteSerializer(many=True, read_only=True)
-    votes_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Track
-        fields = ('id', 'playlist', 'order', 'votes_count', 'votes', 'data')
-
-    def get_votes_count(self, obj):
-        return obj.votes.count()
+        fields = ('id', 'playlist', 'order', 'votes', 'data')
 
 
 class PlaylistSmallSerializer(serializers.ModelSerializer):
     class Meta:
         model = Playlist
-        fields = (
-        'id', 'is_public', 'name', 'place', "time_from", "time_to", "is_active", 'creator', "owners", "participants")
+        fields = ('id', 'is_public', 'name', 'place', "time_from", "time_to", "is_active", 'creator',
+                  'owners', 'participants')
 
 
 class PlaylistAddUsersSerializer(serializers.ModelSerializer):
@@ -81,21 +76,32 @@ class PlaylistSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Playlist
-        fields = ('id', 'name', 'is_public', 'is_active', 'place', 'time_from', 'time_to', '')
+        fields = ('id', 'name', 'is_public', 'is_active', 'place', 'time_from', 'time_to')
 
 
 class PlaylistDetailSerializer(serializers.ModelSerializer):
-    tracks = TrackDetailSerializer(many=True, read_only=True)
-    actions = serializers.SerializerMethodField()#method_name='actions')
+    tracks = serializers.SerializerMethodField()
+    actions = serializers.SerializerMethodField()
 
     class Meta:
+
         model = Playlist
         fields = ('id', 'name', 'is_public', 'place', "time_from", "time_to", 'participants', 'owners', 'tracks',
                   'creator', 'actions')
 
     def get_actions(self, obj):
-        actions_dict = dict.fromkeys(['update', 'destroy', 'add_owner', 'partial_update'], False)
+        actions_dict = dict.fromkeys(['add_participant', 'retrieve', 'list', 'unfollow', 'update', 'follow'
+                                      'destroy', 'add_owner', 'partial_update'], False)
         request = self.context.get('request')
+        if obj.is_public is True:
+            actions_dict.update(dict.fromkeys(['follow'], True))
         if request.user in obj.participants.all():
-            actions_dict.update(dict.fromkeys(['update', 'destroy', 'add_owner', 'partial_update'], True))
+            actions_dict.update(dict.fromkeys(['unfollow'], True))
+        if request.user in obj.owners.all():
+            actions_dict.update(dict.fromkeys(['add_participant', 'retrieve', 'list', 'unfollow', 'update',
+                                               'destroy', 'add_owner', 'partial_update'], True))
         return actions_dict
+
+    def get_tracks(self, instance):
+        tracks = instance.tracks.annotate(votes_count=Count('votes')).order_by('-votes_count')
+        return TrackDetailSerializer(tracks, many=True).data

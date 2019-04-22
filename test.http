@@ -52,7 +52,7 @@ Content-Type: application/json
 
 ###
 
-GET {{host}}/api/playlists/1/
+GET {{host}}/api/playlists/3/
 Authorization: JWT {{token}}
 Content-Type: application/json
 
@@ -102,7 +102,15 @@ Authorization: JWT {{token}}
 Content-Type: application/json
 
 {
-  "participants": [4]
+  "participants": [3]
 }
 ###
+PATCH {{host}}/api/playlists/1/
+Authorization: JWT {{token}}
+Content-Type: application/json
 
+{
+  "is_public": "False"
+}
+
+###
