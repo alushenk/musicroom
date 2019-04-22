@@ -327,7 +327,7 @@ class UnfollowView(GenericAPIView):
 
 
 class MyPlaylistsView(GenericAPIView):
-    permission_classes = (IsAuthenticated)
+    permission_classes = (IsAuthenticated, )
 
     def get(self, request, *args, **kwargs):
         """Returns playlists where current user is in Owners and/or Participants. The endpoint for My Playlists"""
