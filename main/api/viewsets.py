@@ -376,7 +376,7 @@ class AddParticipantToPlaylistView(GenericAPIView):
         self.check_object_permissions(request, playlist)
         if user_to_remove in playlist.participants.all():
             playlist.participants.remove(user_to_remove)
-        return Response(data={"User deleted from the playlist's participants"}, status=status.HTTP_204_NO_CONTENT)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class AddOwnerToPlaylistView(GenericAPIView):
@@ -407,5 +407,4 @@ class AddOwnerToPlaylistView(GenericAPIView):
         self.check_object_permissions(request, playlist)
         if user_to_remove in playlist.owners.all():
             playlist.owners.remove(user_to_remove)
-        return Response(data={"User unfollowed the playlist (removed from participants/owners)"},
-                        status=status.HTTP_204_NO_CONTENT)
+        return Response(status=status.HTTP_204_NO_CONTENT)
