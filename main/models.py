@@ -97,7 +97,7 @@ class Playlist(models.Model):
     is_public = models.BooleanField(default=True)
     is_active = models.BooleanField(default=False)
     # хуй знает в каком виде его хранить GPS координаты
-    place = None
+    place = JSONField(blank=True, null=True)
     name = models.CharField(max_length=200, blank=False, null=False)
     time_from = models.DateTimeField(blank=True, null=True)
     time_to = models.DateTimeField(blank=True, null=True)
