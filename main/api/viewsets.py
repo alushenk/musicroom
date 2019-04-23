@@ -265,20 +265,21 @@ class TrackViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
                                  'retrieve': serializers.TrackDetailSerializer}
 
     def perform_create(self, serializer):
-        if self.queryset.filter(playlist=self.request.data['playlist']).filter(data__id=self.
-                request.data['data']['id']).exists():
-            raise TrackExistsException
+        if self.request.data['data'] and self.request.data['data']['id']:
+            if self.queryset.filter(playlist=self.request.data['playlist']).filter(data__id=self.
+                    request.data['data']['id']).exists():
+                raise TrackExistsException
+        data = dict()
+        queryset = models.Playlist.objects.all()
+        data['playlist'] = get_object_or_404(queryset, id=self.request.data['playlist'])
+        data['creator'] = self.request.user
+        self.check_object_permissions(self.request, data['playlist'])
+        last_order = self.queryset.filter(playlist=data['playlist']).aggregate(Max('order'))
+        if last_order['order__max']:
+            data['order'] = last_order['order__max'] + 1
         else:
-            data = dict()
-            data['playlist'] = models.Playlist.objects.all().filter(id=self.request.data['playlist'])
-            data['creator'] = self.request.user
-            self.check_object_permissions(self.request, data['playlist'])
-            last_order = self.queryset.filter(playlist=data['playlist']).aggregate(Max('order'))
-            if last_order['order__max']:
-                data['order'] = last_order['order__max'] + 1
-            else:
-                data['order'] = 1
-            serializer.save(**data)
+            data['order'] = 1
+        serializer.save(**data)
 
     def perform_destroy(self, instance):
         self.check_object_permissions(self.request, instance)
