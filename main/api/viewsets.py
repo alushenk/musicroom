@@ -20,11 +20,6 @@ from django.core import management
 from io import StringIO
 from rest_framework.response import Response
 from rest_framework.decorators import authentication_classes, permission_classes
-from allauth.account.decorators import verified_email_required
-from rest_framework.views import csrf_exempt
-from rest_framework_jwt import authentication
-from django.shortcuts import redirect
-from rest_framework.reverse import reverse
 from .. import models
 from . import serializers
 from . import permissions
@@ -33,6 +28,7 @@ from .exceptions import TrackExistsException
 from django.contrib.auth import get_user_model
 from requests import request as r
 from django.shortcuts import get_object_or_404
+import main.callbacks as cal
 import dateutil
 
 User = get_user_model()
@@ -213,8 +209,9 @@ class UserViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
     def user_search(self, request):
         """Needs a request like: http://localhost:8000/api/users/user_search/?name=abc"""
         queryset = User.objects.all().filter(Q(username__istartswith=request.query_params['name']) |
-                    Q(first_name__istartswith=request.query_params['name']) |
-                    Q(last_name__istartswith=request.query_params['name'])).order_by('username')
+                                             Q(first_name__istartswith=request.query_params['name']) |
+                                             Q(last_name__istartswith=request.query_params['name'])).order_by(
+            'username')
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data)
 
@@ -382,6 +379,9 @@ class AddParticipantToPlaylistView(GenericAPIView):
         playlist.participants.add(user_to_add)
         serializer_class = self.get_serializer_class()
         serializer = serializer_class(playlist, context={'request': self.request})
+
+        cal.send_playlist_signal(playlist_id, settings.SIGNAL_REFRESH)
+        cal.send_user_signal(user_id, settings.SIGNAL_REFRESH)
         return Response(serializer.data)
 
     def delete(self, request, *args, **kwargs):
@@ -395,6 +395,9 @@ class AddParticipantToPlaylistView(GenericAPIView):
         self.check_object_permissions(request, playlist)
         if user_to_remove in playlist.participants.all():
             playlist.participants.remove(user_to_remove)
+
+            cal.send_playlist_signal(playlist_id, settings.SIGNAL_DELETE)
+            cal.send_user_signal(user_id, settings.SIGNAL_DELETE)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
@@ -413,6 +416,9 @@ class AddOwnerToPlaylistView(GenericAPIView):
         playlist.owners.add(user_to_add)
         serializer_class = self.get_serializer_class()
         serializer = serializer_class(playlist, context={'request': self.request})
+
+        cal.send_playlist_signal(playlist_id, settings.SIGNAL_REFRESH)
+        cal.send_user_signal(user_id, settings.SIGNAL_REFRESH)
         return Response(serializer.data)
 
     def delete(self, request, *args, **kwargs):
@@ -426,4 +432,7 @@ class AddOwnerToPlaylistView(GenericAPIView):
         self.check_object_permissions(request, playlist)
         if user_to_remove in playlist.owners.all():
             playlist.owners.remove(user_to_remove)
+
+            cal.send_playlist_signal(playlist_id, settings.SIGNAL_DELETE)
+            cal.send_user_signal(user_id, settings.SIGNAL_DELETE)
         return Response(status=status.HTTP_204_NO_CONTENT)

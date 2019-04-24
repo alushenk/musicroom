@@ -362,3 +362,7 @@ CHANNEL_LAYERS = {
         },
     },
 }
+
+# for socket signals
+SIGNAL_REFRESH = 'refresh'
+SIGNAL_DELETE = 'delete'
