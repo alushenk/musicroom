@@ -12,6 +12,16 @@ Content-Type: application/json
   "password2": "q12we34rt56y"
 }
 
+###
+
+POST {{host}}/auth/login/
+Content-Type: application/json
+
+{
+  "email": "wartoxy@gmail.com",
+  "password": "q12we34rt56y"
+}
+
 ### verify email
 
 POST {{host}}/auth/verify-email/
@@ -19,17 +29,6 @@ Content-Type: application/json
 
 {
   "key": "MQ:1hFnhO:CuCgGhBHg02jFdDeP5z04PER2cs"
-}
-
-### вводите сюда логин и пароль - получаете в ответ токен
-
-POST {{host}}/auth/token/
-Content-Type: application/json
-
-{
-  "username": "wartoxy@gmail.com",
-  "email": "wartoxy@gmail.com",
-  "password": "q12we34rt56y"
 }
 
 ### текущий пользователь (профиль)
@@ -78,6 +77,17 @@ Content-Type: application/json
 GET {{host}}/api/tracks/
 Authorization: JWT {{token}}
 Content-Type: application/json
+
+###
+
+POST {{host}}/api/tracks/
+Authorization: JWT {{token}}
+Content-Type: application/json
+
+{
+  "playlist": 1,
+  "data": {"id":  5}
+}
 
 ### удалить все данные из базы
 

@@ -127,6 +127,18 @@ def fill_data(request, **kwargs):
 
 @api_view(['GET'])
 @permission_classes(permission_classes=(AllowAny,))
+def test_socket(request, **kwargs):
+    out = StringIO()
+    management.call_command(
+        'test_socket',
+        stdout=out
+    )
+    value = out.getvalue()
+    return Response({'send message to ws://musicroom.ml/ws/playlist/1/': 'OK', 'details': value})
+
+
+@api_view(['GET'])
+@permission_classes(permission_classes=(AllowAny,))
 def google_callback(request, **kwargs):
     code = request.GET['code']
     # <костыль>
@@ -328,7 +340,7 @@ class UnfollowView(GenericAPIView):
 
 
 class MyPlaylistsView(GenericAPIView):
-    permission_classes = (IsAuthenticated, )
+    permission_classes = (IsAuthenticated,)
 
     def get(self, request, *args, **kwargs):
         """Returns playlists where current user is in Owners and/or Participants. The endpoint for My Playlists"""

@@ -39,6 +39,7 @@ urlpatterns = [
     path('management/email_redirect', viewsets.email_redirect),
     path('management/clear-data', viewsets.clear_data),
     path('management/fill-data', viewsets.fill_data),
+    path('management/test-socket', viewsets.test_socket),
     path('management/account-email-verification-sent', viewsets.email_verification_sent,
          name='account_email_verification_sent'),
 

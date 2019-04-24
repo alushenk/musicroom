@@ -78,6 +78,7 @@ INSTALLED_APPS = [
 
     # https://django-rest-swagger.readthedocs.io/en/latest/
     'rest_framework_swagger',
+    'channels',
 
 ]
 
@@ -350,3 +351,14 @@ ACCOUNT_EMAIL_REQUIRED = True
 
 # ACCOUNT_EMAIL_VERIFICATION = "none"
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
+
+# DJANGO-CHANNELS
+ASGI_APPLICATION = "music_room.routing.application"
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('127.0.0.1', 6379)],
+        },
+    },
+}
