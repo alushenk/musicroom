@@ -1,7 +1,7 @@
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from custom_utils import MultiSerializerViewSetMixin
-from django.db.models import Max
+from django.db.models import Max, Q
 from rest_framework.generics import GenericAPIView
 
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -12,6 +12,7 @@ from allauth.socialaccount.providers.oauth2.client import OAuth2Client
 from rest_framework.decorators import api_view
 from django.http import HttpResponse
 from datetime import datetime, timedelta
+from django.utils import timezone
 from sentry_sdk import capture_message
 from sentry_sdk import capture_exception
 from django.conf import settings
@@ -32,6 +33,7 @@ from .exceptions import TrackExistsException
 from django.contrib.auth import get_user_model
 from requests import request as r
 from django.shortcuts import get_object_or_404
+import dateutil
 
 User = get_user_model()
 
@@ -210,8 +212,9 @@ class UserViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
     @action(methods=['GET'], detail=False, url_path='user_search', url_name='user_search')
     def user_search(self, request):
         """Needs a request like: http://localhost:8000/api/users/user_search/?name=abc"""
-        print(request.query_params['name'])
-        queryset = User.objects.filter(username__icontains=request.query_params['name']).order_by('username').all()
+        queryset = User.objects.all().filter(Q(username__istartswith=request.query_params['name']) |
+                    Q(first_name__istartswith=request.query_params['name']) |
+                    Q(last_name__istartswith=request.query_params['name'])).order_by('username')
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data)
 
@@ -235,8 +238,18 @@ class PlaylistViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
     filter_class = PlaylistFilter
 
     def list(self, request, *args, **kwargs):
-        """Returns the list of playlists where is_public=True. The endpoint for playlist search"""
+        """Returns the list of playlists where is_public=True and time_from < time.now < time_to (if they are not null).
+        The endpoint for playlist search"""
+        playlist_ids = list()
+
         playlists = self.queryset.filter(is_public=True)
+        for playlist in playlists:
+            if playlist.time_from and playlist.time_to:
+                if playlist.time_from < timezone.now() < playlist.time_to:
+                    playlist_ids.append(playlist.id)
+            else:
+                playlist_ids.append(playlist.id)
+        playlists = sorted(playlists.filter(id__in=playlist_ids), key=lambda playlist: playlist.id)
         serializer_class = self.get_serializer_class()
         serializer = serializer_class(playlists, many=True)
         return Response(serializer.data)
@@ -249,24 +262,6 @@ class PlaylistViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
         serializer_class = self.get_serializer_class()
         serializer = serializer_class(instance=playlist, context={'request': self.request})
         return Response(serializer.data)
-
-    # @action(methods=['PATCH'], detail=True, url_path='add_participant', url_name='add_participant')
-    # def add_participant(self, request, pk=None):
-    #     playlist = get_object_or_404(self.queryset, pk=pk)
-    #     self.check_object_permissions(request, playlist)
-    #     playlist.participants.add(*request.data['participants'])
-    #     serializer_class = self.get_serializer_class()
-    #     serializer = serializer_class(playlist)
-    #     return Response(serializer.data)
-    #
-    # @action(methods=['PATCH'], detail=True, url_path='add_owner', url_name='add_owner')
-    # def add_owner(self, request, pk=None):
-    #     playlist = self.queryset.filter(pk=pk)
-    #     self.check_object_permissions(request, playlist)
-    #     playlist.owners.add(*request.data['owners'])
-    #     serializer_class = self.get_serializer_class()
-    #     serializer = serializer_class(playlist)
-    #     return Response(serializer.data)
 
 
 class TrackViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
@@ -348,6 +343,8 @@ class MyPlaylistsView(GenericAPIView):
         user_id = kwargs.get('user_id')
         playlist_ids = list()
         for playlist in queryset:
+            if playlist.creator.id is user_id:
+                playlist_ids.append(playlist.id)
             for owner in playlist.owners.all():
                 if owner.id is user_id:
                     playlist_ids.append(playlist.id)
@@ -355,6 +352,16 @@ class MyPlaylistsView(GenericAPIView):
                 if participant.id is user_id:
                     playlist_ids.append(playlist.id)
         playlists = queryset.filter(id__in=playlist_ids)
+        playlist_ids.clear()
+        for playlist in playlists:
+            if playlist.creator.id is user_id:
+                playlist_ids.append(playlist.id)
+            if playlist.time_from and playlist.time_to:
+                if playlist.time_from < timezone.now() < playlist.time_to:
+                    playlist_ids.append(playlist.id)
+            else:
+                playlist_ids.append(playlist.id)
+        playlists = sorted(playlists.filter(id__in=playlist_ids), key=lambda playlist: playlist.id)
         serializer = serializers.PlaylistSmallSerializer(playlists, many=True, read_only=True)
         return Response(serializer.data)
 
