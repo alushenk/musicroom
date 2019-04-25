@@ -168,35 +168,19 @@ def google_url(request, **kwargs):
     authorization_url, state = oauth.authorization_url(authorization_base_url, access_type='offline',
                                                        prompt='select_account')
     # u = str(authorization_url).replace('&amp', ';')
-    # print(u)
     # print('aaaaaaa', unicodedata.normalize('NFKC', authorization_url))
-    print(authorization_url)
-    # return JsonResponse(data={'google_url': authorization_url, 'huy': 'https://huy.morbax.com'})
-    # return JsonResponse({'google_url': authorization_url, 'huy': 'https://huy.morbax.com'})
     return Response({"google_url": authorization_url})
 
 
-class FacebookLogin(SocialLoginView):
-    adapter_class = FacebookOAuth2Adapter
+# class FacebookLogin(SocialLoginView):
+#     adapter_class = FacebookOAuth2Adapter
 
 
 class GoogleLogin(SocialLoginView):
     adapter_class = GoogleOAuth2Adapter
     client_class = OAuth2Client
-    # callback_url = 'https://test-bot.morbax.com/accounts/google/login/callback/'
-    # callback_url = 'https://test-bot.morbax.com/rest-auth/google/callback/'
     # callback_url = 'http://localhost:8000/auth/google/callback/'
     callback_url = 'https://musicroom.ml/auth/google/callback/'
-
-    # @action(methods=['GET'], detail=True, url_name='oauth_callback', url_path='oauth_callback')
-    # def callback_url(self, request):
-    #     print(request.data)
-
-    # @action(methods=['GET'], detail=False, url_name='/rest-auth/google/callback/',
-    #         url_path='/rest-auth/google/callback/')
-    # def callback_url(self, request, **kwargs):
-    #     code = kwargs['code']
-    #     return {'code': code}
 
 
 class UserViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):

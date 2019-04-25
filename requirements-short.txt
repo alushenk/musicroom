@@ -28,5 +28,10 @@ sentry-sdk
 # for soket communication
 channels
 channels_redis
+# for custom middleware shit
+redis
 
 # celery
+
+# for load-testing
+locust

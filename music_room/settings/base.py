@@ -104,7 +104,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'main.disable_csrf.DisableCSRF',
+    'main.custom_middleware.DisableCSRF',
 ]
 
 CORS_ORIGIN_ALLOW_ALL = True
@@ -352,13 +352,16 @@ ACCOUNT_EMAIL_REQUIRED = True
 # ACCOUNT_EMAIL_VERIFICATION = "none"
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 
+REDIS_HOST = 'localhost'
+REDIS_PORT = 6379
+
 # DJANGO-CHANNELS
 ASGI_APPLICATION = "music_room.routing.application"
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            "hosts": [('127.0.0.1', 6379)],
+            "hosts": [(REDIS_HOST, REDIS_PORT)],
         },
     },
 }

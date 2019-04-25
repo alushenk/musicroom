@@ -78,7 +78,7 @@ urlpatterns = [
     path('auth/socialaccounts/<int:pk>/disconnect/', SocialAccountDisconnectView.as_view(),
          name='social_account_disconnect'),
 
-    path('auth/facebook/', viewsets.FacebookLogin.as_view(), name='fb_login'),
+    # path('auth/facebook/', viewsets.FacebookLogin.as_view(), name='fb_login'),
     path('auth/google/', viewsets.GoogleLogin.as_view(), name='gg_login'),
 
     # todo вот это вот моя дичь которую надо потестить и допилить

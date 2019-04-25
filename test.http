@@ -40,12 +40,23 @@ Content-Type: application/json
 ###
 
 GET {{host}}/auth/google/url
+Content-Type: application/json
+
+###
+
+GET {{host}}/auth/google/
 Authorization: JWT {{token}}
 Content-Type: application/json
 
 ###
 
 GET {{host}}/api/
+Authorization: JWT {{token}}
+Content-Type: application/json
+
+###
+
+GET {{host}}/api/playlists/
 Authorization: JWT {{token}}
 Content-Type: application/json
 
@@ -65,11 +76,11 @@ Content-Type: application/json
   "name": "SUKA",
   "is_public": true,
   "is_active": true
-//  "time_from": "string",
-//  "time_to": "string",
-//  "owners": [
-//    "string"
-//  ]
+  //  "time_from": "string",
+  //  "time_to": "string",
+  //  "owners": [
+  //    "string"
+  //  ]
 }
 
 ###
@@ -86,7 +97,9 @@ Content-Type: application/json
 
 {
   "playlist": 1,
-  "data": {"id":  5}
+  "data": {
+    "id": 5
+  }
 }
 
 ### удалить все данные из базы
@@ -112,8 +125,11 @@ Authorization: JWT {{token}}
 Content-Type: application/json
 
 {
-  "participants": [3]
+  "participants": [
+    3
+  ]
 }
+
 ###
 PATCH {{host}}/api/playlists/1/
 Authorization: JWT {{token}}

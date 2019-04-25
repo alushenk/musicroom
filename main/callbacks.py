@@ -8,6 +8,7 @@ from django.conf import settings
 
 def send_user_signal(user_id, message):
     group_name = f'user_{user_id}'
+    # settings.redis_connection.set('{}:{}'.format(group_name, message))
 
     channel_layer = channels.layers.get_channel_layer()
 
@@ -34,6 +35,20 @@ def send_playlist_signal(playlist_id, message):
     )
 
 
+def send_track_signal(track_id, message):
+    group_name = f'track_{track_id}'
+
+    channel_layer = channels.layers.get_channel_layer()
+
+    async_to_sync(channel_layer.group_send)(
+        group_name,
+        {
+            'type': 'chat_message',
+            'message': message
+        }
+    )
+
+
 @receiver(post_save, sender=models.Playlist)
 def post_save_playlist(sender, **kwargs):
     instance = kwargs['instance']
@@ -46,32 +61,47 @@ def post_save_playlist(sender, **kwargs):
 
 @receiver(pre_delete, sender=models.Playlist)
 def pre_delete_playlist(sender, **kwargs):
+    """
+    при удалении плейлиста сначала прилетает сигнал delete а за ним несколько refresh.
+    вроде проблемма а вродебы и нет
+    если delete всегда будет прилетать первым то если сразу после него отключаться
+    от текущего сокета и остальные сигналы до тебя не дойдут - профит
+    """
     instance = kwargs['instance']
     for participant in instance.participants.all():
-        send_user_signal(participant.id, settings.SIGNAL_DELETE)
+        send_user_signal(participant.id, settings.SIGNAL_REFRESH)
     for owner in instance.owners.all():
         send_user_signal(owner.id, settings.SIGNAL_REFRESH)
     send_playlist_signal(instance.id, settings.SIGNAL_DELETE)
 
+
 # todo если вешать ресивер на трек его тоже будет слать в плейлист - в итоге если удалить плейлист прийдет:
 #  1 уведомление на плейлист
 #  n уведомлений на все треки которые были удалены
+# todo возможные решения:
+#  - захуярить в редис несколько сообщений и отправлять одно через middleware по окончанию запроса
+#  - различать sender на клиенте (для этого надо его слать с сервака)
+#  но вроде все нормально если отключаться и подключаться к нужным сокетам при переходах между страничками
 
-# @receiver(post_save, sender=models.Playlist)
-# def post_save_track(sender, **kwargs):
-#     instance = kwargs['instance']
-#     for participant in instance.participants.all():
-#         send_user_signal(participant.id, settings.SIGNAL_REFRESH)
-#     for owner in instance.owners.all():
-#         send_user_signal(owner.id, settings.SIGNAL_REFRESH)
-#     send_playlist_signal(instance.id, settings.SIGNAL_REFRESH)
-#
-#
-# @receiver(post_delete, sender=models.Playlist)
-# def post_delete_track(sender, **kwargs):
-#     instance = kwargs['instance']
-#     for participant in instance.participants.all():
-#         send_user_signal(participant.id, settings.SIGNAL_DELETE)
-#     for owner in instance.owners.all():
-#         send_user_signal(owner.id, settings.SIGNAL_DELETE)
-#     send_playlist_signal(instance.id, settings.SIGNAL_DELETE)
+@receiver(post_save, sender=models.Track)
+def post_save_track(sender, **kwargs):
+    instance = kwargs['instance']
+    # не обязательно рефрешить трек так как врятли его будут редактировать, сделал на всякий
+    send_track_signal(instance.id, settings.SIGNAL_REFRESH)
+    send_playlist_signal(instance.playlist_id, settings.SIGNAL_REFRESH)
+
+
+@receiver(post_delete, sender=models.Track)
+def post_delete_track(sender, **kwargs):
+    instance = kwargs['instance']
+    send_track_signal(instance.id, settings.SIGNAL_DELETE)
+    send_playlist_signal(instance.playlist_id, settings.SIGNAL_REFRESH)
+
+
+@receiver((post_save, pre_delete), sender=models.Vote)
+def vote(sender, **kwargs):
+    instance = kwargs['instance']
+    track = instance.track
+    send_track_signal(track.id, settings.SIGNAL_REFRESH)
+    # это если в плейлисте будут отрисовываться лайки (вроде должны)
+    send_playlist_signal(track.playlist_id, settings.SIGNAL_REFRESH)

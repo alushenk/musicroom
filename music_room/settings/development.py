@@ -16,3 +16,7 @@ DATABASES = {
                 'HOST': 'localhost',
                 'PORT': '5432'}
 }
+
+# from redis import Redis
+#
+# redis_connection = Redis(host=REDIS_HOST, port=REDIS_PORT, db=1, decode_responses=True)

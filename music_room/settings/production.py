@@ -57,11 +57,17 @@ LOGGING = {
     },
 }
 
+REDIS_HOST = 'redis'
+
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            "hosts": [('redis', 6379)],
+            "hosts": [(REDIS_HOST, REDIS_PORT)],
         },
     },
 }
+
+# from redis import Redis
+#
+# redis_connection = Redis(host=REDIS_HOST, port=REDIS_PORT, db=1, decode_responses=True)
