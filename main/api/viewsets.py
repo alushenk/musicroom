@@ -2,7 +2,7 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from custom_utils import MultiSerializerViewSetMixin
 from django.db.models import Max, Q
-from rest_framework.generics import GenericAPIView
+from rest_framework.generics import GenericAPIView, CreateAPIView
 
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from allauth.socialaccount.providers.facebook.views import FacebookOAuth2Adapter
@@ -20,6 +20,11 @@ from django.core import management
 from io import StringIO
 from rest_framework.response import Response
 from rest_framework.decorators import authentication_classes, permission_classes
+from allauth.account.decorators import verified_email_required
+from rest_framework.views import csrf_exempt
+from rest_framework_jwt import authentication
+from django.shortcuts import redirect
+from rest_framework.reverse import reverse
 from .. import models
 from . import serializers
 from . import permissions
@@ -192,10 +197,14 @@ class UserViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
     @action(methods=['GET'], detail=False, url_path='user_search', url_name='user_search')
     def user_search(self, request):
         """Needs a request like: http://localhost:8000/api/users/user_search/?name=abc"""
-        queryset = User.objects.all().filter(Q(username__istartswith=request.query_params['name']) |
-                                             Q(first_name__istartswith=request.query_params['name']) |
-                                             Q(last_name__istartswith=request.query_params['name'])).order_by(
-            'username')
+        if not request.query_params:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        if not request.query_params['name']:
+            queryset = User.objects.all()
+        else:
+            queryset = User.objects.all().filter(Q(username__istartswith=request.query_params['name']) |
+                    Q(first_name__istartswith=request.query_params['name']) |
+                    Q(last_name__istartswith=request.query_params['name'])).order_by('username')
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data)
 
@@ -269,28 +278,44 @@ class TrackViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
             data['order'] = 1
         serializer.save(**data)
 
-    def perform_destroy(self, instance):
-        self.check_object_permissions(self.request, instance)
-        instance.delete()
+
+# class VoteViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
+#     permission_classes = (IsAuthenticated,)
+#     queryset = models.Vote.objects.all()
+#     serializer_class = serializers.VoteSerializer
+#     serializer_action_classes = {'list': serializers.VoteSerializer,
+#                                  'retrieve': serializers.VoteSerializer}
+#
+#     def perform_create(self, serializer):
+#         """Creates a Vote instance. The endpoint for Like/Dislike action. The user can like track
+#         and by using this url again user can take his like of particular track"""
+#         queryset = models.Track.objects.all()
+#         track = get_object_or_404(queryset, id=self.request.data['track'])
+#
+#         instance = serializer.save(track=track, user=self.request.user)
+#         if instance:
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+#         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class VoteViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
-    permission_classes = (IsAuthenticated,)
-    queryset = models.Vote.objects.all()
-    serializer_class = serializers.VoteSerializer
-    serializer_action_classes = {'list': serializers.VoteSerializer,
-                                 'retrieve': serializers.VoteSerializer}
+class VoteView(CreateAPIView,): #GenericAPIView):
+    serializer_class = serializers.VoteDeleteSerializer
 
-    def perform_create(self, serializer):
-        """Creates a Vote instance. The endpoint for Like/Dislike action. The user can like track
-        and by using this url again user can take his like of particular track"""
-        data = dict()
-        data['track'] = models.Track.objects.all().filter(id=self.request.data['track'])
-        try:
-            serializer.save(track=data['track'], user=self.request.user)
-        except:
-            serializer.data['status'] = "Instance deleted"
-            print(serializer.data)
+    def create(self, request, *args, **kwargs):
+        track_id = kwargs['track_id']
+        queryset = models.Track.objects.all()
+        track = get_object_or_404(queryset, id=track_id)
+        vote = models.Vote.objects.filter(track_id=track_id, user_id=request.user).first()
+        if not vote:
+            serializer = serializers.VoteSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save(track=track, user=self.request.user)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            serializer = serializers.VoteDeleteSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save(vote=vote)
+            return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class UnfollowView(GenericAPIView):

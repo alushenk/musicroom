@@ -40,13 +40,17 @@ class PlaylistPermissions(permissions.BasePermission):
         if obj.is_public is True:
             if view.action in ['add_participant', 'retrieve', 'list']:
                 return True
-            elif view.action in ['update', 'destroy', 'add_owner', 'partial_update']:
+            elif view.action in ['update', 'add_owner', 'partial_update']:
                 return request.user in obj.owners.all()
+            elif view.action is 'destroy':
+                return request.user.id is obj.creator.id
         else:
-            if view.action in ['retrieve', 'update', 'destroy', 'add_owner', 'partial_update', 'add_participant']:
+            if view.action in ['retrieve', 'update', 'add_owner', 'partial_update', 'add_participant']:
                 return request.user in obj.owners.all()
             if view.action == "unfollow":
                 return request.user in obj.participants.all() or request.user in obj.owners.all()
+            if view.action is 'destroy':
+                return request.user.id is obj.creator.id
 
 
 class PlaylistViewPermissions(permissions.BasePermission):
@@ -72,6 +76,6 @@ class TrackPermissions(permissions.BasePermission):
             if obj.is_public is True:
                 return True
             return request.user in obj.owners.all() or request.user in obj.participants.all()
-        elif view.action in ['destroy', 'update', 'partial_update']:
-            return obj.creator is request.user
+        elif view.action is 'destroy':
+            return obj.creator.id is request.user.id
         return True

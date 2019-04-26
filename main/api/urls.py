@@ -25,7 +25,7 @@ router = DefaultRouter()
 router.register('users', viewsets.UserViewSet)
 router.register('playlists', viewsets.PlaylistViewSet, base_name='Playlist')
 router.register('tracks', viewsets.TrackViewSet, base_name='Track')
-router.register('votes', viewsets.VoteViewSet, base_name='Vote')
+# router.register('votes', viewsets.VoteViewSet, base_name='Vote')
 
 urlpatterns = [
     path('api/playlists/<int:pk>/users/<int:user_id>/', viewsets.UnfollowView.as_view(), name='del-user-from-playlist'),
@@ -34,6 +34,7 @@ urlpatterns = [
          name='add-participant-to-playlist'),
     path('api/playlists/<int:pk>/owners/<int:user_id>/', viewsets.AddOwnerToPlaylistView.as_view(),
          name='add-owner-to-playlist'),
+    path('api/votes/<int:track_id>/', viewsets.VoteView.as_view(), name='vote'),
 
     path('management/channel.html', viewsets.channel),
     path('management/email_redirect', viewsets.email_redirect),

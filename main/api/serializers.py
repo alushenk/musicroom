@@ -2,6 +2,7 @@ from rest_framework import serializers
 from main.models import Playlist, Track, Vote
 from django.contrib.auth import get_user_model
 from django.db.models import Count
+from django.shortcuts import get_object_or_404
 
 User = get_user_model()
 
@@ -20,26 +21,37 @@ class UserSerializer(serializers.ModelSerializer):
     #     return user
 
 
+class VoteDeleteSerializer(serializers.Serializer):
+    def create(self, validated_data):
+        vote = validated_data['vote']
+        vote.delete()
+        instance = {"detail": "Vote deleted"}
+        return instance
+        # return
+
+
 class VoteSerializer(serializers.ModelSerializer):
-    status = serializers.CharField(max_length=150, required=False)
 
     class Meta:
         model = Vote
-        fields = ("id", "track", "user", "status")
+        fields = ('id', 'track', 'user')
 
-    def create(self, validated_data):
-        try:
-            vote = Vote.objects.get(track_id=validated_data['track'].id, user_id=validated_data['user'].id)
-            vote.delete()
-            return None
-        except:
-            return Vote.objects.create(**validated_data)
+    # def create(self, validated_data):
+    #     queryset = Vote.objects.all()
+    #     vote = queryset.filter(track_id=validated_data['track'].id, user_id=validated_data['user']).first()
+    #     if vote:
+    #         vote.delete()
+    #         instance = {"detail": "Vote deleted"}
+    #         return instance
+    #     else:
+    #         instance = Vote.objects.create(**validated_data)
+    #         return instance
 
 
 class TrackCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Track
-        fields = ('id', 'playlist', 'data')
+        fields = ('id', 'playlist', 'data', 'creator')
 
 
 class TrackDetailSerializer(serializers.ModelSerializer):
@@ -90,11 +102,11 @@ class PlaylistDetailSerializer(serializers.ModelSerializer):
                   'creator', 'actions')
 
     def get_actions(self, obj):
-        actions_dict = dict.fromkeys(['add_participant', 'retrieve', 'list', 'unfollow', 'update', 'follow'
+        actions_dict = dict.fromkeys(['add_participant', 'retrieve', 'list', 'unfollow', 'update', 'follow',
                                       'destroy', 'add_owner', 'partial_update'], False)
         request = self.context.get('request')
         if obj.is_public is True:
-            actions_dict.update(dict.fromkeys(['follow'], True))
+            actions_dict.update(dict.fromkeys(['follow', 'retrieve'], True))
         if request.user in obj.participants.all():
             actions_dict.update(dict.fromkeys(['unfollow'], True))
         if request.user in obj.owners.all():
