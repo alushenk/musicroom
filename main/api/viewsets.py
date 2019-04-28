@@ -75,7 +75,32 @@ def email_redirect(request, **kwargs):
 
 @api_view(['GET'])
 @permission_classes(permission_classes=(AllowAny,))
+def password_reset_complete(request, **kwargs):
+    response = HttpResponse(
+        'Your password has been changed. You can close this page now',
+        content_type='text/html; charset=utf-8'
+    )
+    # response.mimetype = "text/plain"
+    return response
+
+
+@api_view(['GET'])
+@permission_classes(permission_classes=(AllowAny,))
 def password_reset_confirm(request, **kwargs):
+    page = """
+    {% extends 'base.html' %}
+
+    {% block title %}Enter new password{% endblock %}
+
+    {% block content %}
+        <h1>Set a new password!</h1>
+        <form method="POST">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <input type="submit" value="Change my password">
+        </form>
+    {% endblock %}
+    """
     print(kwargs)
     h = {'uidb64': 'MQ', 'token': '55l-b632f36d63c3cc13c423'}
     return Response(kwargs)
@@ -188,6 +213,22 @@ class GoogleLogin(SocialLoginView):
     callback_url = 'https://musicroom.ml/auth/google/callback/'
 
 
+# @api_view(['GET'])
+# @permission_classes(permission_classes=(AllowAny,))
+# def search(request, **kwargs):
+#     if 'name' not in kwargs:
+#         return Response(status=status.HTTP_404_NOT_FOUND)
+#     if not request.query_params['name']:
+#         queryset = User.objects.all()
+#     else:
+#         queryset = User.objects.all().filter(Q(username__istartswith=request.query_params['name']) |
+#                                              Q(first_name__istartswith=request.query_params['name']) |
+#                                              Q(last_name__istartswith=request.query_params['name'])).order_by(
+#             'username')
+#     serializer = serializers.UserSerializer(queryset, many=True)
+#     return Response(serializer.data)
+
+
 class UserViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = serializers.UserSerializer
@@ -203,8 +244,9 @@ class UserViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
             queryset = User.objects.all()
         else:
             queryset = User.objects.all().filter(Q(username__istartswith=request.query_params['name']) |
-                    Q(first_name__istartswith=request.query_params['name']) |
-                    Q(last_name__istartswith=request.query_params['name'])).order_by('username')
+                                                 Q(first_name__istartswith=request.query_params['name']) |
+                                                 Q(last_name__istartswith=request.query_params['name'])).order_by(
+                'username')
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data)
 
@@ -298,7 +340,7 @@ class TrackViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
 #         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class VoteView(CreateAPIView,): #GenericAPIView):
+class VoteView(CreateAPIView, ):  # GenericAPIView):
     serializer_class = serializers.VoteDeleteSerializer
 
     def create(self, request, *args, **kwargs):

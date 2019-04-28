@@ -11,11 +11,12 @@ from rest_auth.views import (
     UserDetailsView,
     PasswordChangeView,
     PasswordResetView,
-    PasswordResetConfirmView
+    # PasswordResetConfirmView
 )
 from . import viewsets
 
 from allauth.account.views import ConfirmEmailView
+from django.contrib.auth.views import PasswordResetConfirmView as ResCon
 
 schema_view = get_swagger_view(title='MusicRoom API')
 
@@ -41,6 +42,7 @@ urlpatterns = [
     path('management/clear-data', viewsets.clear_data),
     path('management/fill-data', viewsets.fill_data),
     path('management/test-socket', viewsets.test_socket),
+    # path('management/search/<str:name>', viewsets.search),
     path('management/account-email-verification-sent', viewsets.email_verification_sent,
          name='account_email_verification_sent'),
 
@@ -49,9 +51,8 @@ urlpatterns = [
 
     # URLs that do not require a session or valid token
     path('auth/password/reset/', PasswordResetView.as_view(), name='password_reset'),
-    path('auth/password-reset/confirm/<str:uidb64>/<str:token>/', viewsets.password_reset_confirm,
-         name='password_reset_confirm'),
-    path('auth/password/reset/confirm/', PasswordResetConfirmView.as_view(), name='rest_password_reset_confirm'),
+    path('auth/password-reset/confirm/<str:uidb64>/<str:token>/', ResCon.as_view(), name='password_reset_confirm'),
+    path('auth/password-reset/complete/', viewsets.password_reset_complete, name='password_reset_complete'),
 
     # URLs that require a user to be logged in with a valid session / token.
     path('auth/user/', UserDetailsView.as_view(), name='user_details'),

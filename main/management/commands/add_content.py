@@ -1,9 +1,9 @@
 from django.core.management.base import BaseCommand
-from django.contrib.sites.models import Site
 from allauth.socialaccount.models import SocialApp, SocialAccount
 from django.contrib.sites.models import Site
-from main.models import *
+import main.models as models
 from django.contrib.auth import get_user_model
+from allauth.account.models import EmailAddress
 
 
 class Command(BaseCommand):
@@ -17,6 +17,7 @@ class Command(BaseCommand):
 
         User = get_user_model()
         user = User.objects.create_superuser(email='a@a.com', username='a', password='a')
+        EmailAddress.objects.create(user=user, email=user.email, verified=True, primary=True)
 
         # add social app
 
@@ -41,34 +42,34 @@ class Command(BaseCommand):
 
         user = User.objects.get(email='a@a.com')
 
-        playlist = Playlist.objects.create(is_public=True, name='public playlist of user a', creator=user)
+        playlist = models.Playlist.objects.create(is_public=True, name='public playlist of user a', creator=user)
         playlist.owners.add(user)
 
-        track_1 = Track.objects.create(playlist=playlist, order=1, creator=user)
-        track_2 = Track.objects.create(playlist=playlist, order=2, creator=user)
-        track_3 = Track.objects.create(playlist=playlist, order=3, creator=user)
+        track_1 = models.Track.objects.create(playlist=playlist, order=1, creator=user)
+        track_2 = models.Track.objects.create(playlist=playlist, order=2, creator=user)
+        track_3 = models.Track.objects.create(playlist=playlist, order=3, creator=user)
 
-        playlist = Playlist.objects.create(is_public=True, name='private playlist of user b', creator=user)
+        playlist = models.Playlist.objects.create(is_public=True, name='private playlist of user b', creator=user)
         playlist.owners.add(user)
 
-        track_1 = Track.objects.create(playlist=playlist, order=1, creator=user)
-        track_2 = Track.objects.create(playlist=playlist, order=2, creator=user)
-        track_3 = Track.objects.create(playlist=playlist, order=3, creator=user)
+        track_1 = models.Track.objects.create(playlist=playlist, order=1, creator=user)
+        track_2 = models.Track.objects.create(playlist=playlist, order=2, creator=user)
+        track_3 = models.Track.objects.create(playlist=playlist, order=3, creator=user)
 
         # ----------------------------------------------------------------------------------------------------
 
         user = User.objects.create(email='b@b.com', username='b', password='b')
 
-        playlist = Playlist.objects.create(is_public=True, name='public playlist of user b', creator=user)
+        playlist = models.Playlist.objects.create(is_public=True, name='public playlist of user b', creator=user)
         playlist.owners.add(user)
 
-        track_1 = Track.objects.create(playlist=playlist, order=1, creator=user)
-        track_2 = Track.objects.create(playlist=playlist, order=2, creator=user)
-        track_3 = Track.objects.create(playlist=playlist, order=3, creator=user)
+        track_1 = models.Track.objects.create(playlist=playlist, order=1, creator=user)
+        track_2 = models.Track.objects.create(playlist=playlist, order=2, creator=user)
+        track_3 = models.Track.objects.create(playlist=playlist, order=3, creator=user)
 
-        playlist = Playlist.objects.create(is_public=True, name='private playlist of user b', creator=user)
+        playlist = models.Playlist.objects.create(is_public=True, name='private playlist of user b', creator=user)
         playlist.owners.add(user)
 
-        track_1 = Track.objects.create(playlist=playlist, order=1, creator=user)
-        track_2 = Track.objects.create(playlist=playlist, order=2, creator=user)
-        track_3 = Track.objects.create(playlist=playlist, order=3, creator=user)
+        track_1 = models.Track.objects.create(playlist=playlist, order=1, creator=user)
+        track_2 = models.Track.objects.create(playlist=playlist, order=2, creator=user)
+        track_3 = models.Track.objects.create(playlist=playlist, order=3, creator=user)
