@@ -10,26 +10,17 @@ services:
         max-file: "10"
     ports:
     - "5432:5432"
-  #  redis:
-  #    restart: unless-stopped
-  #    image: redis:alpine
-  #    logging:
-  #      driver: "json-file"
-  #      options:
-  #        max-size: "200k"
-  #        max-file: "10"
-  #    volumes:
-  #    - 'redis:/data'
-  #    ports:
-  #    - "6379:6379"
-  #  celery_worker:
-  #    restart: unless-stopped
-  #    build: .
-  #    command: celery -A test_celery worker --loglevel=debug
-  #    volumes:
-  #      - '.:/code'
-  #    depends_on:
-  #      - web
+  redis:
+    restart: unless-stopped
+    image: redis:alpine
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "200k"
+        max-file: "10"
+    volumes:
+    - 'redis:/data'
+    ports:
+    - "6379:6379"
 volumes:
-  #  redis:
-  code:
+  redis:

@@ -206,3 +206,27 @@ POST /auth/google/
 }
 
 и юзер сразу с first_name & last_name и подтвержденным имейлом
+
+---------------------------------------------------------------------------------------
+
+https://docs.aws.amazon.com/cli/latest/userguide/cli-services-s3-commands.html
+
+AWS CLI (S3) SHIT:
+1. aws configure (paste stuff fron .env file)
+2. aws s3 cp --recursive front/ s3://musicroom-bucket/front
+
+---------------------------------------------------------------------------------------
+
+{
+    "Version": "2012-10-17",
+    "Id": "Policy1552319312293",
+    "Statement": [
+        {
+            "Sid": "Stmt1552319298545",
+            "Effect": "Allow",
+            "Principal": "*",
+            "Action": "s3:GetObject",
+            "Resource": "arn:aws:s3:::musicroom-bucket/*"
+        }
+    ]
+}
