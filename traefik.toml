@@ -31,7 +31,8 @@ onHostRule = true
 [acme.httpChallenge]
 entryPoint = "http"
 
-[file]
+#[file]
+
 #    [backends]
 #        [backends.nasweb]
 #            [backends.nasweb.servers.nasweb]
@@ -42,6 +43,8 @@ entryPoint = "http"
 #            backend = "nasweb"
 #        [frontends.domain.routes.domain]
 #            rule = "Host:musicroom.ml/front"
-    filename = "servers.toml"
+
+    # use to include servers.toml file
+#    filename = "servers.toml"
     # Enable watch file changes
-    watch = true
+#    watch = true

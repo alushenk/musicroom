@@ -231,7 +231,7 @@ class GoogleLogin(SocialLoginView):
 
 class UserViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
     queryset = User.objects.all()
-    permission_classes = (IsAuthenticated, permissions.IsStaffOrTargetUser,)
+    permission_classes = (IsAuthenticated, permissions.IsOwnerOrReadOnlyUser,)
     serializer_class = serializers.UserSerializer
     serializer_action_classes = {'list': serializers.UserSerializer,
                                  'retrieve': serializers.UserSerializer}
@@ -448,8 +448,8 @@ class AddParticipantToPlaylistView(GenericAPIView):
         if user_to_remove in playlist.participants.all():
             playlist.participants.remove(user_to_remove)
 
-            cal.send_playlist_signal(playlist_id, settings.SIGNAL_DELETE)
-            cal.send_user_signal(user_id, settings.SIGNAL_DELETE)
+            cal.send_playlist_signal(playlist_id, settings.SIGNAL_REFRESH)
+            cal.send_user_signal(user_id, settings.SIGNAL_REFRESH)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
@@ -485,6 +485,6 @@ class AddOwnerToPlaylistView(GenericAPIView):
         if user_to_remove in playlist.owners.all():
             playlist.owners.remove(user_to_remove)
 
-            cal.send_playlist_signal(playlist_id, settings.SIGNAL_DELETE)
-            cal.send_user_signal(user_id, settings.SIGNAL_DELETE)
+            cal.send_playlist_signal(playlist_id, settings.SIGNAL_REFRESH)
+            cal.send_user_signal(user_id, settings.SIGNAL_REFRESH)
         return Response(status=status.HTTP_204_NO_CONTENT)

@@ -31,7 +31,6 @@ class VoteDeleteSerializer(serializers.Serializer):
 
 
 class VoteSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Vote
         fields = ('id', 'track', 'user')
@@ -49,9 +48,12 @@ class VoteSerializer(serializers.ModelSerializer):
 
 
 class TrackCreateSerializer(serializers.ModelSerializer):
+    votes = VoteSerializer(many=True, read_only=True)
+
     class Meta:
         model = Track
-        fields = ('id', 'playlist', 'data', 'creator')
+        fields = ('id', 'playlist', 'data', 'creator', 'votes')
+        # read_only_fields = ('votes',)
 
 
 class TrackDetailSerializer(serializers.ModelSerializer):
@@ -82,8 +84,8 @@ class PlaylistSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
 
         instance.creator = request.user
-        instance.save()
         instance.owners.set([request.user])
+        instance.save()
         return instance
 
     class Meta:

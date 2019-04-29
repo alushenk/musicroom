@@ -2,6 +2,15 @@ from rest_framework import permissions
 from ..models import Playlist
 
 
+class IsOwnerOrReadOnlyUser(permissions.BasePermission):
+    # message = "You should be the administrator to do this"
+
+    def has_object_permission(self, request, view, obj):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        return request.user.is_staff or obj == request.user
+
+
 class IsStaffOrTargetUser(permissions.BasePermission):
     def has_permission(self, request, view):
         # allow user to list all users if logged in user is staff

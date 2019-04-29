@@ -8,33 +8,30 @@ services:
       - 80:80
       - 443:443
       - 8080:8080 # The Web UI (enabled by --api)
-#    expose:
-#      - 8080
-#    labels:
-#      - "traefik.enable=true"
-#      - "traefik.frontent.rule=Host:traefik.${DOMAIN}"
-#      - "traefik.frontend.auth.basic=a@a.com:$$apr1$$ax33RJha$$ouYl0yrpk0WOTiItKJGJB0"
-#      - "traefik.port=8080"
+    #    expose:
+    #      - 8080
+    #    labels:
+    #      - "traefik.enable=true"
+    #      - "traefik.frontent.rule=Host:traefik.${DOMAIN}"
+    #      - "traefik.frontend.auth.basic=a@a.com:$$apr1$$ax33RJha$$ouYl0yrpk0WOTiItKJGJB0"
+    #      - "traefik.port=8080"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./traefik.toml:/traefik.toml
       - ./acme.json:/acme.json
       - ./servers.toml:/servers.toml
-#    networks:
-#      - web
-#  nginx-proxy:
-#    image: danieldent/nginx-ssl-proxy
-#    restart: unless-stopped
-#    volumes:
-#      - "/etc/letsencrypt"
-#      - "static-volume:/static"
-#      - "./nginx.conf:/etc/nginx/main_location.conf"
-#    labels:
-#      - "traefik.enable=true"
-#      - "traefik.frontend.rule=Host:${DOMAIN}/static"
-#      - "traefik.backend=Host:nginx.${DOMAIN}"
-#      - 'traefik.port=8000'
-
+  nginx:
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: DockerfileNginx
+    depends_on:
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.frontend.rule=Host:front.${DOMAIN}"
+      - "traefik.backend=Host:nginx.${DOMAIN}"
+      - 'traefik.port=80'
   web:
     restart: unless-stopped
     build: .
@@ -42,6 +39,7 @@ services:
     depends_on:
       - db
       - redis
+      - traefik
     environment:
       PYTHONUNBUFFERED: 'true'
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
@@ -57,20 +55,8 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.frontend.rule=Host:${DOMAIN}"
-#      - "traefik.frontend.rule=Path:/api, _/mwas/_"
-#      - "traefik.frontend.regex=^https?://musicroom.ml/api(.*)"
-#      - "traefik.frontend.replacement=https://musicroom.ml/api/$$1"
-#      - "traefik.frontend.permanent=false"
-
-#      - "traefik.frontend.rule=PathPrefixStrip: /api"
-#      - "traefik.frontend.rule=Path: /api"
       - "traefik.backend=Host:${DOMAIN}"
       - 'traefik.port=8000'
-
-
-#    networks:
-#      - web
-#      - default
   db:
     restart: unless-stopped
     image: postgres:alpine
@@ -91,28 +77,6 @@ services:
       options:
         max-file: '5'
         max-size: '10m'
-#  celery_worker:
-#    restart: unless-stopped
-#    build: .
-#    command: celery -A music_room worker -B --loglevel=info
-#    depends_on:
-#      - db
-#      - redis
-#    environment:
-#      PYTHONUNBUFFERED: 'true'
-#      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
-#      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
-#      SECRET_KEY: ${SECRET_KEY}
-#      DJANGO_SETTINGS_MODULE: music_room.settings.production
-#    logging:
-#      driver: json-file
-#      options:
-#        max-file: '5'
-#        max-size: '10m'
 volumes:
   postgres-data:
   redis-data:
-#  static-volume:
-#networks:
-#  web:
-#    external: true
