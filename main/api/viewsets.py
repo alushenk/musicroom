@@ -231,6 +231,7 @@ class GoogleLogin(SocialLoginView):
 
 class UserViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
     queryset = User.objects.all()
+    permission_classes = (IsAuthenticated, permissions.IsStaffOrTargetUser,)
     serializer_class = serializers.UserSerializer
     serializer_action_classes = {'list': serializers.UserSerializer,
                                  'retrieve': serializers.UserSerializer}
