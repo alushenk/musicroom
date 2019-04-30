@@ -327,7 +327,7 @@ class TrackViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
         if self.request.user.id is not track.creator_id:
             self.check_object_permissions(request=self.request, obj=playlist)
         track.delete()
-        return Response(data={"Instance deleted"}, status=status.HTTP_204_NO_CONTENT)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class VoteView(CreateAPIView, ):
@@ -368,8 +368,7 @@ class UnfollowView(GenericAPIView):
             playlist.participants.remove(user_to_remove)
         if user_to_remove in playlist.owners.all():
             playlist.owners.remove(user_to_remove)
-        return Response(data={"User unfollowed the playlist (removed from participants/owners)"},
-                        status=status.HTTP_204_NO_CONTENT)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class MyPlaylistsView(GenericAPIView):
