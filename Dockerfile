@@ -10,9 +10,9 @@ RUN apt -y install postgresql-client
 RUN pip install --no-cache-dir -r requirements.txt
 
 #ADD . docker-entrypoint.sh
-ADD main /code
-ADD music_room /code
-ADD manage.py /code
+ADD main /code/main
+ADD music_room /code/music_room
+ADD manage.py /code/manage.py
 
 WORKDIR /code
 
