@@ -61,13 +61,13 @@ class TrackDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Track
-        fields = ('id', 'playlist', 'order', 'votes', 'data')
+        fields = ('id', 'playlist', 'order', 'votes', 'data', 'creator')
 
 
 class PlaylistSmallSerializer(serializers.ModelSerializer):
     class Meta:
         model = Playlist
-        fields = ('id', 'is_public', 'name', 'place', "time_from", "time_to", "is_active", 'creator',
+        fields = ('id', 'is_public', 'name', 'place', "time_from", "time_to", 'creator',
                   'owners', 'participants')
 
 
@@ -90,7 +90,7 @@ class PlaylistSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Playlist
-        fields = ('id', 'name', 'is_public', 'is_active', 'place', 'time_from', 'time_to')
+        fields = ('id', 'name', 'is_public', 'place', 'time_from', 'time_to')
 
 
 class PlaylistDetailSerializer(serializers.ModelSerializer):

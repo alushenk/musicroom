@@ -321,27 +321,16 @@ class TrackViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
             data['order'] = 1
         serializer.save(**data)
 
-
-# class VoteViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
-#     permission_classes = (IsAuthenticated,)
-#     queryset = models.Vote.objects.all()
-#     serializer_class = serializers.VoteSerializer
-#     serializer_action_classes = {'list': serializers.VoteSerializer,
-#                                  'retrieve': serializers.VoteSerializer}
-#
-#     def perform_create(self, serializer):
-#         """Creates a Vote instance. The endpoint for Like/Dislike action. The user can like track
-#         and by using this url again user can take his like of particular track"""
-#         queryset = models.Track.objects.all()
-#         track = get_object_or_404(queryset, id=self.request.data['track'])
-#
-#         instance = serializer.save(track=track, user=self.request.user)
-#         if instance:
-#             return Response(serializer.data, status=status.HTTP_201_CREATED)
-#         return Response(status=status.HTTP_204_NO_CONTENT)
+    def destroy(self, request, *args, **kwargs):
+        track = get_object_or_404(models.Track.objects.all(), id=kwargs['pk'])
+        playlist = get_object_or_404(models.Playlist.objects.all(), id=track.playlist_id)
+        if self.request.user.id is not track.creator_id:
+            self.check_object_permissions(request=self.request, obj=playlist)
+        track.delete()
+        return Response(data={"Instance deleted"}, status=status.HTTP_204_NO_CONTENT)
 
 
-class VoteView(CreateAPIView, ):  # GenericAPIView):
+class VoteView(CreateAPIView, ):
     serializer_class = serializers.VoteDeleteSerializer
 
     def create(self, request, *args, **kwargs):
@@ -352,7 +341,7 @@ class VoteView(CreateAPIView, ):  # GenericAPIView):
         if not vote:
             serializer = serializers.VoteSerializer(data=request.data)
             if serializer.is_valid():
-                serializer.save(track=track, user=self.request.user)
+                serializer.save(track=track, user=request.user)
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             serializer = serializers.VoteDeleteSerializer(data=request.data)

@@ -86,5 +86,5 @@ class TrackPermissions(permissions.BasePermission):
                 return True
             return request.user in obj.owners.all() or request.user in obj.participants.all()
         elif view.action is 'destroy':
-            return obj.creator.id is request.user.id
+            return obj.creator.id is request.user.id or request.user in obj.owners.all()
         return True
