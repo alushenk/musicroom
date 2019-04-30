@@ -391,7 +391,15 @@ class MyPlaylistsView(GenericAPIView):
                     playlist_ids.append(playlist.id)
             for participant in playlist.participants.all():
                 if participant.id is user_id:
-                    playlist_ids.append(playlist.id)
+                    if playlist.time_to or playlist.time_from:
+                        if not playlist.time_from:
+                            playlist.time_from = timezone.now()
+                        if not playlist.time_to:
+                            playlist.time_to = timezone.now().replace(year=2021)
+                        if playlist.time_from <= timezone.now() < playlist.time_to:
+                            playlist_ids.append(playlist.id)
+                    else:
+                        playlist_ids.append(playlist.id)
         playlists = queryset.filter(id__in=playlist_ids)
         playlist_ids.clear()
         for playlist in playlists:
