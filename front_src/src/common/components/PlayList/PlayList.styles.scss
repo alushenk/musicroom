@@ -1,0 +1,66 @@
+@import "./../../constants";
+
+.track-record {
+  .album-cover-small {
+    width: 6vw;
+    max-width: 70px;
+  }
+
+  &-title {
+    position: relative;
+
+    .title-play-button {
+      position: absolute;
+      top: 0;
+      left: 0;
+      display: none;
+      width: 100%;
+      height: 100%;
+      justify-content: center;
+      align-items: center;
+      background-color: transparent;
+      transition: all 0.3s, border 0s;
+
+      .action-icon {
+        font-size: 34px;
+      }
+    }
+  }
+
+  &:hover {
+    .title-play-button {
+      display: flex;
+      background-color: $ant-table-hovered-row-color;
+    }
+  }
+
+  &.active {
+    background-color: aquamarine;
+  }
+
+  &-rating {
+    display: flex;
+    justify-content: space-evenly;
+
+    .track-rating-likes {
+      font-size: 18px;
+    }
+  }
+}
+
+.ant-table {
+  th.ant-rating-column,
+  th.ant-actions-column {
+    text-align: center;
+  }
+
+  td.ant-actions-column {
+    padding-right: 0;
+    padding-left: 0;
+  }
+
+  .actions-container {
+    display: flex;
+    justify-content: space-evenly;
+  }
+}
