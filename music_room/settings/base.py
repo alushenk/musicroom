@@ -329,17 +329,26 @@ SWAGGER_SETTINGS = {
 }
 
 # Email configuration
-EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_USE_TLS = True
+# EMAIL_PORT = 587
+# EMAIL_HOST_USER = 'lush.antony@gmail.com'
+# DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+# EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+
 # EMAIL_HOST = 'smtp.sendgrid.net'
-EMAIL_USE_TLS = True
 # EMAIL_USE_TLS = False
-EMAIL_PORT = 587
 # EMAIL_PORT = 465
-EMAIL_HOST_USER = 'lush.antony@gmail.com'
 # EMAIL_HOST_USER = 'apikey'
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 # DEFAULT_FROM_EMAIL = 'lush.antony@gmail.com'
+
+# Email configuration
+EMAIL_HOST = 'mail.ukraine.com.ua'
+EMAIL_PORT = 2525
+EMAIL_HOST_USER = 'bot@morbax.com'
+DEFAULT_FROM_EMAIL = 'bot@morbax.com'
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+
 
 # ACCOUNT_AUTHENTICATION_METHOD = 'email'
 EMAIL_REQUIRED = True
