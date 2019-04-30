@@ -277,8 +277,12 @@ class PlaylistViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
 
         playlists = self.queryset.filter(is_public=True)
         for playlist in playlists:
-            if playlist.time_from and playlist.time_to:
-                if playlist.time_from < timezone.now() < playlist.time_to:
+            if playlist.time_to or playlist.time_from:
+                if not playlist.time_from:
+                    playlist.time_from = timezone.now()
+                if not playlist.time_to:
+                    playlist.time_to = timezone.now().replace(year=2021)
+                if playlist.time_from <= timezone.now() < playlist.time_to:
                     playlist_ids.append(playlist.id)
             else:
                 playlist_ids.append(playlist.id)
