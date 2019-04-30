@@ -241,3 +241,11 @@ AWS CLI (S3) SHIT:
         }
     ]
 }
+
+---------------------------------------------------------------------------------------
+
+install npm in container
+
+npm i      inside project
+
+npm run build
