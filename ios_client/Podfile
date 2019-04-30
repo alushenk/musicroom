@@ -1,0 +1,10 @@
+platform :ios, '12.0'
+use_frameworks!
+
+target 'MusicRoom' do
+	pod 'Moya', '~> 12.0'
+	pod 'SwipeCellKit', '~> 2.5.1'
+	pod 'NotificationBannerSwift', '2.0.1'
+	pod 'Starscream'
+	pod 'Simplicity'
+end

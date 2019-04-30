@@ -1,0 +1,50 @@
+PODS:
+  - Alamofire (4.8.2)
+  - MarqueeLabel/Swift (3.2.1)
+  - Moya (12.0.1):
+    - Moya/Core (= 12.0.1)
+  - Moya/Core (12.0.1):
+    - Alamofire (~> 4.1)
+    - Result (~> 4.0)
+  - NotificationBannerSwift (2.0.1):
+    - MarqueeLabel/Swift (~> 3.2.0)
+    - SnapKit (~> 4.2.0)
+  - Result (4.1.0)
+  - Simplicity (2.0.1)
+  - SnapKit (4.2.0)
+  - Starscream (3.1.0)
+  - SwipeCellKit (2.5.4)
+
+DEPENDENCIES:
+  - Moya (~> 12.0)
+  - NotificationBannerSwift (= 2.0.1)
+  - Simplicity
+  - Starscream
+  - SwipeCellKit (~> 2.5.1)
+
+SPEC REPOS:
+  https://github.com/cocoapods/specs.git:
+    - Alamofire
+    - MarqueeLabel
+    - Moya
+    - NotificationBannerSwift
+    - Result
+    - Simplicity
+    - SnapKit
+    - Starscream
+    - SwipeCellKit
+
+SPEC CHECKSUMS:
+  Alamofire: ae5c501addb7afdbb13687d7f2f722c78734c2d3
+  MarqueeLabel: 2daf039bf916937c8a4c9adfc13577cc5e51b4ce
+  Moya: cf730b3cd9e005401ef37a85143aa141a12fd38f
+  NotificationBannerSwift: 007774aa590cc9680647b92b2f217bef5c00c32c
+  Result: bd966fac789cc6c1563440b348ab2598cc24d5c7
+  Simplicity: 58ce0c6569baf45e48ccd25432274ae899097517
+  SnapKit: fe8a619752f3f27075cc9a90244d75c6c3f27e2a
+  Starscream: 08172b481e145289c4930cb567230fb55897cfa4
+  SwipeCellKit: 4eada3884ab1bbae5e8d2fb9030c242aa23d7f42
+
+PODFILE CHECKSUM: 0772a0b5639b95d929866c0db58cf3a31c7956c5
+
+COCOAPODS: 1.6.1

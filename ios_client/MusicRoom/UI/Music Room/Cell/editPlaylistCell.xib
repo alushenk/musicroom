@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14490.49"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="editPlaylistCell" rowHeight="86" id="US1-Dc-wu5" customClass="EditPlaylistCell" customModule="MusicRoom" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="414" height="86"/>
+            <autoresizingMask key="autoresizingMask"/>
+            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="US1-Dc-wu5" id="mLF-Ep-BJb">
+                <rect key="frame" x="0.0" y="0.0" width="414" height="85.5"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="J5b-pZ-m27">
+                        <rect key="frame" x="8" y="18" width="50" height="50"/>
+                        <constraints>
+                            <constraint firstAttribute="width" secondItem="J5b-pZ-m27" secondAttribute="height" multiplier="1:1" id="4Lr-4t-fpQ"/>
+                            <constraint firstAttribute="width" constant="50" id="Aeh-GO-XJn"/>
+                        </constraints>
+                        <inset key="imageEdgeInsets" minX="12.5" minY="12.5" maxX="12.5" maxY="12.5"/>
+                        <state key="normal" title="Button" image="delete-icon"/>
+                        <connections>
+                            <action selector="deleteButtonAction:" destination="US1-Dc-wu5" eventType="touchUpInside" id="vIg-Zs-vjN"/>
+                        </connections>
+                    </button>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Playlist Name" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mES-iz-Rco">
+                        <rect key="frame" x="66" y="32.5" width="104" height="21"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                        <nil key="textColor"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                </subviews>
+                <constraints>
+                    <constraint firstItem="J5b-pZ-m27" firstAttribute="leading" secondItem="mLF-Ep-BJb" secondAttribute="leading" constant="8" id="XL5-Q2-Ey5"/>
+                    <constraint firstItem="mES-iz-Rco" firstAttribute="leading" secondItem="J5b-pZ-m27" secondAttribute="trailing" constant="8" id="ezh-SL-hKf"/>
+                    <constraint firstItem="mES-iz-Rco" firstAttribute="centerY" secondItem="mLF-Ep-BJb" secondAttribute="centerY" id="nNe-te-a3T"/>
+                    <constraint firstItem="J5b-pZ-m27" firstAttribute="centerY" secondItem="mLF-Ep-BJb" secondAttribute="centerY" id="oBe-i1-qbi"/>
+                </constraints>
+            </tableViewCellContentView>
+            <connections>
+                <outlet property="playlistName" destination="mES-iz-Rco" id="8TK-SX-Y2a"/>
+            </connections>
+            <point key="canvasLocation" x="95.652173913043484" y="106.47321428571428"/>
+        </tableViewCell>
+    </objects>
+    <resources>
+        <image name="delete-icon" width="100" height="100"/>
+    </resources>
+</document>
