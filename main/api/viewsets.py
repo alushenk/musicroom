@@ -1,11 +1,9 @@
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
-from custom_utils import MultiSerializerViewSetMixin
+from main.custom_utils import MultiSerializerViewSetMixin
 from django.db.models import Max, Q
 from rest_framework.generics import GenericAPIView, CreateAPIView
-
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from allauth.socialaccount.providers.facebook.views import FacebookOAuth2Adapter
 from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
 from rest_auth.registration.views import SocialLoginView
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
@@ -13,18 +11,11 @@ from rest_framework.decorators import api_view
 from django.http import HttpResponse
 from datetime import datetime, timedelta
 from django.utils import timezone
-from sentry_sdk import capture_message
-from sentry_sdk import capture_exception
 from django.conf import settings
 from django.core import management
 from io import StringIO
 from rest_framework.response import Response
-from rest_framework.decorators import authentication_classes, permission_classes
-from allauth.account.decorators import verified_email_required
-from rest_framework.views import csrf_exempt
-from rest_framework_jwt import authentication
-from django.shortcuts import redirect
-from rest_framework.reverse import reverse
+from rest_framework.decorators import permission_classes
 from .. import models
 from . import serializers
 from . import permissions
@@ -34,7 +25,6 @@ from django.contrib.auth import get_user_model
 from requests import request as r
 from django.shortcuts import get_object_or_404
 import main.callbacks as cal
-import dateutil
 
 User = get_user_model()
 

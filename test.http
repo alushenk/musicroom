@@ -22,6 +22,25 @@ Content-Type: application/json
   "password": "q12we34rt56y"
 }
 
+###
+
+POST {{host}}/auth/login/
+Content-Type: application/json
+
+{
+  "email": "a@a.com",
+  "password": "a"
+}
+
+###
+
+POST {{host}}/auth/password/reset/
+Content-Type: application/json
+
+{
+  "email": "wartoxy@gmail.com"
+}
+
 ### verify email
 
 POST {{host}}/auth/verify-email/
@@ -62,7 +81,13 @@ Content-Type: application/json
 
 ###
 
-GET {{host}}/api/playlists/3/
+GET {{host}}/api/users/user_search/
+Authorization: JWT {{token}}
+Content-Type: application/json
+
+###
+
+GET {{host}}/api/playlists/8/
 Authorization: JWT {{token}}
 Content-Type: application/json
 
@@ -76,11 +101,6 @@ Content-Type: application/json
   "name": "SUKA",
   "is_public": true,
   "is_active": true
-  //  "time_from": "string",
-  //  "time_to": "string",
-  //  "owners": [
-  //    "string"
-  //  ]
 }
 
 ###
@@ -98,7 +118,7 @@ Content-Type: application/json
 {
   "playlist": 1,
   "data": {
-    "id": 5
+    "id": 4
   }
 }
 
@@ -114,29 +134,67 @@ Content-Type: application/json
 
 ###
 
-DELETE {{host}}/api/playlists/1/users/4/
+POST {{host}}/api/playlists/6/users/1/
 Authorization: JWT {{token}}
 Content-Type: application/json
 
 ###
 
-PATCH {{host}}/api/playlists/1/add_participant/
+PATCH {{host}}/api/users/1/
 Authorization: JWT {{token}}
 Content-Type: application/json
 
 {
-  "participants": [
-    3
-  ]
+  "username": "gandon"
 }
 
 ###
-PATCH {{host}}/api/playlists/1/
+
+DELETE {{host}}/api/playlists/9/
+Authorization: JWT {{token}}
+Content-Type: application/json
+
+{
+  "name": "gandon"
+}
+
+###
+
+GET {{host}}/api/users/1/playlists
+Authorization: JWT {{token}}
+Content-Type: application/json
+
+###
+
+GET {{host}}/api/users/
+Authorization: JWT {{token}}
+Content-Type: application/json
+
+###
+
+PATCH {{host}}/api/playlists/6/participants/1/
+Authorization: JWT {{token}}
+Content-Type: application/json
+
+###
+
+DELETE {{host}}/api/playlists/6/participants/1/
+Authorization: JWT {{token}}
+Content-Type: application/json
+
+###
+GET {{host}}/api/playlists//
 Authorization: JWT {{token}}
 Content-Type: application/json
 
 {
   "is_public": "False"
 }
+
+###
+
+DELETE {{host}}/api/playlists/31/users/17/
+Authorization: JWT {{token}}
+Content-Type: application/json
 
 ###
