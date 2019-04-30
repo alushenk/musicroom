@@ -32,6 +32,18 @@ services:
       - "traefik.frontend.rule=Host:front.${DOMAIN}"
       - "traefik.backend=Host:nginx.${DOMAIN}"
       - 'traefik.port=80'
+#  node:
+#    restart: unless-stopped
+#    build:
+#      context: .
+#      dockerfile: DockerfileNode
+#    depends_on:
+#      - traefik
+#    labels:
+#      - "traefik.enable=true"
+#      - "traefik.frontend.rule=Host:front.${DOMAIN}"
+#      - "traefik.backend=Host:nginx.${DOMAIN}"
+#      - 'traefik.port=5000'
   web:
     restart: unless-stopped
     build: .

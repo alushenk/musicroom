@@ -476,7 +476,7 @@ class Command(BaseCommand):
         # u.save()
 
         User = get_user_model()
-        user = User.objects.create_superuser(email='a@a.com', username='a', password='a')
+        user = User.objects.create_superuser(email='a@a.com', username='a', password='aaaaaaaa')
         EmailAddress.objects.create(user=user, email=user.email, verified=True, primary=True)
 
         # add social app
@@ -543,7 +543,7 @@ class Command(BaseCommand):
 
         # ----------------------------------------------------------------------------------------------------
 
-        user = User.objects.create(email='b@b.com', username='b', password='b')
+        user = User.objects.create(email='b@b.com', username='b', password='bbbbbbbb')
         EmailAddress.objects.create(user=user, email=user.email, verified=True, primary=True)
 
         playlist = models.Playlist.objects.create(is_public=True, name='public playlist of user b', creator=user)
