@@ -23,7 +23,8 @@ class PlaylistConsumer(JsonWebsocketConsumer):
             self.channel_name
         )
 
-    # todo возможно это нахуй не надо так как клиенты не пишут нихуя в сокеты, так що можно попробовать убрать
+    # We don't need this because clients don't write anything into sockets
+    #
     # Receive message from WebSocket
     # def receive(self, text_data):
     #     text_data_json = json.loads(text_data)
@@ -38,7 +39,8 @@ class PlaylistConsumer(JsonWebsocketConsumer):
     #         }
     #     )
 
-    # сюда я пишу из джанговых коллбэков
+    # I write here from django's callbacks
+    #
     # Receive message from room group
     def chat_message(self, event):
         message = event['message']

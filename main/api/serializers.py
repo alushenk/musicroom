@@ -2,7 +2,6 @@ from rest_framework import serializers
 from main.models import Playlist, Track, Vote
 from django.contrib.auth import get_user_model
 from django.db.models import Count
-from django.shortcuts import get_object_or_404
 
 User = get_user_model()
 
@@ -12,14 +11,6 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ('id', 'username', 'email', 'first_name', 'last_name')
 
-    # def create(self, validated_data):
-    #     user = User(
-    #         email=validated_data.get('email', None)
-    #     )
-    #     user.set_password(validated_data.get('password', None))
-    #     user.save()
-    #     return user
-
 
 class VoteDeleteSerializer(serializers.Serializer):
     def create(self, validated_data):
@@ -27,24 +18,12 @@ class VoteDeleteSerializer(serializers.Serializer):
         vote.delete()
         instance = {"detail": "Vote deleted"}
         return instance
-        # return
 
 
 class VoteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Vote
         fields = ('id', 'track', 'user')
-
-    # def create(self, validated_data):
-    #     queryset = Vote.objects.all()
-    #     vote = queryset.filter(track_id=validated_data['track'].id, user_id=validated_data['user']).first()
-    #     if vote:
-    #         vote.delete()
-    #         instance = {"detail": "Vote deleted"}
-    #         return instance
-    #     else:
-    #         instance = Vote.objects.create(**validated_data)
-    #         return instance
 
 
 class TrackCreateSerializer(serializers.ModelSerializer):
@@ -53,7 +32,6 @@ class TrackCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Track
         fields = ('id', 'playlist', 'data', 'creator', 'votes')
-        # read_only_fields = ('votes',)
 
 
 class TrackDetailSerializer(serializers.ModelSerializer):

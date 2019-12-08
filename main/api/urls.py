@@ -11,22 +11,18 @@ from rest_auth.views import (
     UserDetailsView,
     PasswordChangeView,
     PasswordResetView,
-    # PasswordResetConfirmView
 )
-from . import viewsets
-
 from allauth.account.views import ConfirmEmailView
 from django.contrib.auth.views import PasswordResetConfirmView as ResCon
+from . import viewsets
 
 schema_view = get_swagger_view(title='MusicRoom API')
 
 # In the latest DRF, you need to explicitly set base_name in your viewset url if you don't have queryset defined.
 router = DefaultRouter()
-# router.register('users', viewsets.UserViewSet, base_name='User')
 router.register('users', viewsets.UserViewSet)
 router.register('playlists', viewsets.PlaylistViewSet, base_name='Playlist')
 router.register('tracks', viewsets.TrackViewSet, base_name='Track')
-# router.register('votes', viewsets.VoteViewSet, base_name='Vote')
 
 urlpatterns = [
     path('api/playlists/<int:pk>/users/<int:user_id>/', viewsets.UnfollowView.as_view(), name='del-user-from-playlist'),
@@ -58,7 +54,7 @@ urlpatterns = [
     path('auth/user/', UserDetailsView.as_view(), name='user_details'),
     path('auth/password/change/', PasswordChangeView.as_view(), name='password_change'),
 
-    # same shit as rest_auth.views, but with
+    # same as rest_auth.views, but with
     path('auth/registration/', RegisterView.as_view(), name='register'),
     path('auth/login/', LoginView.as_view(), name='login'),
 
@@ -73,22 +69,13 @@ urlpatterns = [
     # If you don't want to use API on that step, then just use ConfirmEmailView
     # view from:
     # django-allauth https://github.com/pennersr/django-allauth/blob/master/allauth/account/views.py
-    # todo как я понял это стандартная вьюха для имейла из джанги которую можно переопределить
     path('auth/account-confirm-email/<str:key>/', ConfirmEmailView.as_view(), name='account_confirm_email'),
-
     path('auth/socialaccounts/', SocialAccountListView.as_view(), name='social_account_list'),
     path('auth/socialaccounts/<int:pk>/disconnect/', SocialAccountDisconnectView.as_view(),
          name='social_account_disconnect'),
-
-    # path('auth/facebook/', viewsets.FacebookLogin.as_view(), name='fb_login'),
     path('auth/google/', viewsets.GoogleLogin.as_view(), name='gg_login'),
 
-    # todo вот это вот моя дичь которую надо потестить и допилить
+    # my custom views. probably not working and is not used by clients
     path('auth/google/callback/', viewsets.google_callback),
     path('auth/google/url/', viewsets.google_url),
-
-    # todo проверить эту хуйню и добавить если надо
-    #  если /auth/socialaccounts/ не делает то же самое или даже больше
-    #  я думаю оно использует эту хуйню под капотом так что ее не надо импортить
-    # url(r'^accounts/', include('allauth.urls')),
 ]

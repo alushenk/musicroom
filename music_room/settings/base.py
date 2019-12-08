@@ -42,7 +42,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.sites',
     'django.contrib.contenttypes',
-    # для авторизации в админке
     'django.contrib.sessions',
     'django.contrib.staticfiles',
 
@@ -90,9 +89,6 @@ SITE_ID = 1
 # SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '205782653310-fjjullvs7cklq6su4qp0o7e8def79vfg.apps.googleusercontent.com'
 # SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'sMv5Xrje1aP_f__HS3g3Jt2B'
 # SOCIAL_AUTH_GOOGLE_OAUTH2_FIELDS = ['email', 'username']  # optional
-#
-# SOCIAL_AUTH_FACEBOOK_KEY = 'your app client id'
-# SOCIAL_AUTH_FACEBOOK_SECRET = 'your app client secret'
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -109,28 +105,9 @@ MIDDLEWARE = [
 
 CORS_ORIGIN_ALLOW_ALL = True
 
-# CORS_ORIGIN_WHITELIST = (
-#     'musicroom.ml',
-#     'localhost:8000',
-#     '127.0.0.1:8000'
-# )
-
 ROOT_URLCONF = 'music_room.urls'
 
 TEMPLATES = [
-    # {
-    #     'BACKEND': 'django.template.backends.django.DjangoTemplates',
-    #     'DIRS': [],
-    #     'APP_DIRS': True,
-    #     'OPTIONS': {
-    #         'context_processors': [
-    #             'django.template.context_processors.debug',
-    #             'django.template.context_processors.request',
-    #             'django.contrib.auth.context_processors.auth',
-    #             'django.contrib.messages.context_processors.messages',
-    #         ],
-    #     },
-    # },
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         # 'DIRS': [os.path.join(os.path.dirname(BASE_DIR), 'main/templates')],
@@ -244,7 +221,6 @@ JWT_AUTH = {
     # 'JWT_EXPIRATION_DELTA': timedelta(days=1),
     # 'JWT_AUDIENCE': None,
     # 'JWT_ISSUER': None,
-    # todo try it out
     # 'JWT_ALLOW_REFRESH': False,
     # 'JWT_REFRESH_EXPIRATION_DELTA': timedelta(days=7),
 
@@ -329,26 +305,12 @@ SWAGGER_SETTINGS = {
 }
 
 # Email configuration
-# EMAIL_HOST = 'smtp.gmail.com'
-# EMAIL_USE_TLS = True
-# EMAIL_PORT = 587
-# EMAIL_HOST_USER = 'lush.antony@gmail.com'
-# DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
-# EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
-
-# EMAIL_HOST = 'smtp.sendgrid.net'
-# EMAIL_USE_TLS = False
-# EMAIL_PORT = 465
-# EMAIL_HOST_USER = 'apikey'
-# DEFAULT_FROM_EMAIL = 'lush.antony@gmail.com'
-
-# Email configuration
-EMAIL_HOST = 'mail.ukraine.com.ua'
-EMAIL_PORT = 2525
-EMAIL_HOST_USER = 'bot@morbax.com'
-DEFAULT_FROM_EMAIL = 'bot@morbax.com'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'lush.antony@gmail.com'
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
-
 
 # ACCOUNT_AUTHENTICATION_METHOD = 'email'
 EMAIL_REQUIRED = True

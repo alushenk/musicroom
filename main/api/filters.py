@@ -7,7 +7,4 @@ class PlaylistFilter(filters.BaseFilterBackend):
     """
 
     def filter_queryset(self, request, queryset, view):
-        # print(queryset)
-        # if request.user.is_staff:
-        #     return queryset
         return queryset.filter(is_public=True)

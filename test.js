@@ -6,7 +6,7 @@ chatSocket.onmessage = function(e) {
         console.log(message + '\n');
     };
 
-//var message = 'zalupa'
+//var message = 'hello'
 
 //chatSocket.send(JSON.stringify({'message': message}));
 

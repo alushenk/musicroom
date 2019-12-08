@@ -1,7 +1,6 @@
 # variable {{host}}  located in http-client.env.json file (the root of project)
 # variable {{token}} in http-client.private.env.json
 
-# регистрация
 POST {{host}}/auth/registration/
 Content-Type: application/json
 
@@ -50,7 +49,7 @@ Content-Type: application/json
   "key": "MQ:1hFnhO:CuCgGhBHg02jFdDeP5z04PER2cs"
 }
 
-### текущий пользователь (профиль)
+### current user profile
 
 GET {{host}}/auth/user
 Authorization: JWT {{token}}
@@ -98,7 +97,7 @@ Authorization: JWT {{token}}
 Content-Type: application/json
 
 {
-  "name": "SUKA",
+  "name": "my playlist",
   "is_public": true,
   "is_active": true
 }
@@ -122,12 +121,12 @@ Content-Type: application/json
   }
 }
 
-### удалить все данные из базы
+### clean db
 
 GET {{host}}/management/clear-data
 Content-Type: application/json
 
-### заполнить тестовыми (аналогично ./manage.py add_content; main/management/commands/add_content.py)
+### fill db with test data (same as ./manage.py add_content; main/management/commands/add_content.py)
 
 GET {{host}}/management/fill-data
 Content-Type: application/json
@@ -145,7 +144,7 @@ Authorization: JWT {{token}}
 Content-Type: application/json
 
 {
-  "username": "gandon"
+  "username": "some username"
 }
 
 ###
@@ -155,7 +154,7 @@ Authorization: JWT {{token}}
 Content-Type: application/json
 
 {
-  "name": "gandon"
+  "name": "some name"
 }
 
 ###

@@ -67,7 +67,3 @@ CHANNEL_LAYERS = {
         },
     },
 }
-
-# from redis import Redis
-#
-# redis_connection = Redis(host=REDIS_HOST, port=REDIS_PORT, db=1, decode_responses=True)

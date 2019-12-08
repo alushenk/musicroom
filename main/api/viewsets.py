@@ -32,9 +32,6 @@ User = get_user_model()
 @api_view(['GET'])
 @permission_classes(permission_classes=(AllowAny,))
 def channel(request, **kwargs):
-    # capture_message(settings.EMAIL_HOST_PASSWORD)
-    # capture_exception(settings.EMAIL_HOST_PASSWORD)
-
     cache_expire = 60 * 60 * 24 * 365
     expiry_time = datetime.utcnow() + timedelta(days=365)
     response = HttpResponse(
@@ -94,22 +91,6 @@ def password_reset_confirm(request, **kwargs):
     print(kwargs)
     h = {'uidb64': 'MQ', 'token': '55l-b632f36d63c3cc13c423'}
     return Response(kwargs)
-    # data = """
-    #         <form action="http://localhost:8000/auth/password/reset/confrm/" method="post">
-    #             <label for="your_name">Your name: </label>
-    #             <input id="uid64" type="text" name="your_name" value="{}">
-    #             <input id="token" type="text" name="your_name" value="{}">
-    #             <input id="new_password1" type="text" name="your_name">
-    #             <input id="new_password2" type="text" name="your_name">
-    #             <input type="submit" value="OK">
-    #         </form>
-    # """.format(kwargs['uidb64'], kwargs['token'])
-    #
-    # response = HttpResponse(
-    #     data,
-    #     content_type='text/html; charset=utf-8'
-    # )
-    # return response
 
 
 @api_view(['GET'])
@@ -192,31 +173,11 @@ def google_url(request, **kwargs):
     return Response({"google_url": authorization_url})
 
 
-# class FacebookLogin(SocialLoginView):
-#     adapter_class = FacebookOAuth2Adapter
-
-
 class GoogleLogin(SocialLoginView):
     adapter_class = GoogleOAuth2Adapter
     client_class = OAuth2Client
     # callback_url = 'http://localhost:8000/auth/google/callback/'
     callback_url = 'https://musicroom.ml/auth/google/callback/'
-
-
-# @api_view(['GET'])
-# @permission_classes(permission_classes=(AllowAny,))
-# def search(request, **kwargs):
-#     if 'name' not in kwargs:
-#         return Response(status=status.HTTP_404_NOT_FOUND)
-#     if not request.query_params['name']:
-#         queryset = User.objects.all()
-#     else:
-#         queryset = User.objects.all().filter(Q(username__istartswith=request.query_params['name']) |
-#                                              Q(first_name__istartswith=request.query_params['name']) |
-#                                              Q(last_name__istartswith=request.query_params['name'])).order_by(
-#             'username')
-#     serializer = serializers.UserSerializer(queryset, many=True)
-#     return Response(serializer.data)
 
 
 class UserViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
@@ -240,12 +201,6 @@ class UserViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
                 'username')
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data)
-
-    # эта штука нахуй не нужна так как все происходит через rest-auth ендпоинты
-    # def get_permissions(self):
-    #     # allow non-authenticated user to create via POST
-    #     # todo is authenticated nado sdelat
-    #     return (AllowAny() if self.request.method == 'POST' else IsAuthenticated()),
 
 
 class PlaylistViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):

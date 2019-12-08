@@ -1,9 +1,4 @@
-from django.test import TestCase
-from rest_framework.test import APIRequestFactory
-from rest_framework.test import RequestsClient
 from rest_framework.test import APITestCase
-from requests.auth import HTTPBasicAuth
-
 from rest_framework import status
 from main.models import *
 import logging
@@ -27,8 +22,8 @@ class RegistrationTestCase(APITestCase):
 
         url = f'{DOMAIN}/auth/registration/'
         data = {
-            "username": "pidor",
-            "email": "pidor@gmail.com",
+            "username": "someuser",
+            "email": "someuser@gmail.com",
             "password1": "3.14door",
             "password2": "3.14door"
         }
@@ -42,15 +37,12 @@ class RegistrationTestCase(APITestCase):
         self.assertEqual(data['username'], user['username'])
         self.assertEqual(data['email'], user['email'])
 
-        # todo хули блять здесь pk а дальше id?
         user_id = user['pk']
         token = response.data['token']
 
         response = self.client.get(f'{DOMAIN}/api/users/', format='json')
         self.assertEqual(len(response.json()), 1)
 
-        # todo нахуя здесь возвращать password? и почему оно вообще возвращает мне юзера когда я не авторизован?
-        #  походу надо поебаться с пермишенами,
         response = self.client.get(f'{DOMAIN}/api/users/{user_id}/', format='json')
         # logger.error(response.json())
 
@@ -62,7 +54,7 @@ class RegistrationTestCase(APITestCase):
 
         url = f'{DOMAIN}/auth/login/'
         data = {
-            "username": "pidor",
+            "username": "someuser",
             "password": "3.14door"
         }
         response = self.client.post(url, data, format='json')
@@ -72,8 +64,8 @@ class RegistrationTestCase(APITestCase):
             response.data['user'],
             {
                 "pk": user_id,
-                "username": "pidor",
-                "email": "pidor@gmail.com",
+                "username": "someuser",
+                "email": "someuser@gmail.com",
                 "first_name": "",
                 "last_name": ""
             }
@@ -104,20 +96,17 @@ class RegistrationTestCase(APITestCase):
 
         # authorized user ----------------------------------------------------------------------------------------------
 
-        # self.client.session.auth = HTTPBasicAuth('pidor', '3.14door')
+        # self.client.session.auth = HTTPBasicAuth('someuser', '3.14door')
         # self.client.session.headers.update({'x-test': 'true'})
 
         url = f'{DOMAIN}/auth/registration/'
         data = {
-            "username": "pidor",
-            "email": "pidor@gmail.com",
+            "username": "someuser",
+            "email": "someuser@gmail.com",
             "password1": "3.14door",
             "password2": "3.14door"
         }
         response = self.client.post(url, data, format='json')
-
-        # todo походу /auth/registration сразу авторизует так что эта хуйня не нужна
-        # self.client.login(username='pidor', password='3.14door')
 
         # --------------------------------------------------------------------------------------------------------------
 
@@ -137,8 +126,8 @@ class RegistrationTestCase(APITestCase):
         # registration
         url = f'{DOMAIN}/auth/registration/'
         data = {
-            "username": "pidor",
-            "email": "pidor@gmail.com",
+            "username": "someuser",
+            "email": "someuser@gmail.com",
             "password1": "3.14door",
             "password2": "3.14door"
         }
@@ -147,7 +136,7 @@ class RegistrationTestCase(APITestCase):
         # create playlist
         url = f'{DOMAIN}/api/playlists/'
         data = {
-            "name": "zalupa",
+            "name": "dfdfdfdf",
             "is_public": True,
             "is_active": True
         }

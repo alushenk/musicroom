@@ -1,9 +1,7 @@
 from rest_framework import permissions
-from ..models import Playlist
 
 
 class IsOwnerOrReadOnlyUser(permissions.BasePermission):
-    # message = "You should be the administrator to do this"
 
     def has_object_permission(self, request, view, obj):
         if request.method in permissions.SAFE_METHODS:
@@ -17,8 +15,6 @@ class IsStaffOrTargetUser(permissions.BasePermission):
         return view.action == 'retrieve' or request.user.is_staff
 
     def has_object_permission(self, request, view, obj):
-        # allow logged in user to view own details, allows staff to view all records
-        # todo if request.method == delete then шото проверяем и шото возвращаем
         return request.user.is_staff or obj == request.user
 
 
@@ -42,9 +38,6 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
 
 class PlaylistPermissions(permissions.BasePermission):
 
-    # def has_permission(self, request, view):
-    #     return request.user.permissions.is_authenticated
-
     def has_object_permission(self, request, view, obj=None):
         if obj.is_public is True:
             if view.action in ['add_participant', 'retrieve', 'list']:
@@ -63,9 +56,6 @@ class PlaylistPermissions(permissions.BasePermission):
 
 
 class PlaylistViewPermissions(permissions.BasePermission):
-
-    # def has_permission(self, request, view):
-    #     return request.user.permissions.is_authenticated
 
     def has_object_permission(self, request, view, obj=None):
         if obj.is_public is True:

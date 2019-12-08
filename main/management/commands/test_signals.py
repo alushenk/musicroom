@@ -1,7 +1,4 @@
 from django.core.management.base import BaseCommand
-from django.contrib.sites.models import Site
-from allauth.socialaccount.models import SocialApp, SocialAccount
-from django.contrib.sites.models import Site
 from main.models import *
 from django.contrib.auth import get_user_model
 
@@ -10,13 +7,12 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         User = get_user_model()
 
-        # user = User.objects.get(email='a@a.com')
-        user = User.objects.create(email='suka', username='suka')
+        user = User.objects.create(email='oneemail', username='onename')
 
-        playlist = Playlist.objects.create(name='zalupa')
+        playlist = Playlist.objects.create(name='testplaylist')
         playlist.owners.add(user)
 
-        user = User.objects.create(email='blyad', username='blyad')
+        user = User.objects.create(email='twoemail', username='twoname')
 
         track_1 = Track.objects.create(playlist=playlist, order=1, creator=user)
         track_2 = Track.objects.create(playlist=playlist, order=2, creator=user)

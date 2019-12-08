@@ -61,12 +61,6 @@ def post_save_playlist(sender, **kwargs):
 
 @receiver(pre_delete, sender=models.Playlist)
 def pre_delete_playlist(sender, **kwargs):
-    """
-    при удалении плейлиста сначала прилетает сигнал delete а за ним несколько refresh.
-    вроде проблемма а вродебы и нет
-    если delete всегда будет прилетать первым то если сразу после него отключаться
-    от текущего сокета и остальные сигналы до тебя не дойдут - профит
-    """
     instance = kwargs['instance']
     for participant in instance.participants.all():
         send_user_signal(participant.id, settings.SIGNAL_REFRESH)
@@ -74,14 +68,6 @@ def pre_delete_playlist(sender, **kwargs):
         send_user_signal(owner.id, settings.SIGNAL_REFRESH)
     send_playlist_signal(instance.id, settings.SIGNAL_DELETE)
 
-
-# todo если вешать ресивер на трек его тоже будет слать в плейлист - в итоге если удалить плейлист прийдет:
-#  1 уведомление на плейлист
-#  n уведомлений на все треки которые были удалены
-# todo возможные решения:
-#  - захуярить в редис несколько сообщений и отправлять одно через middleware по окончанию запроса
-#  - различать sender на клиенте (для этого надо его слать с сервака)
-#  но вроде все нормально если отключаться и подключаться к нужным сокетам при переходах между страничками
 
 @receiver(post_save, sender=models.Track)
 def post_save_track(sender, **kwargs):

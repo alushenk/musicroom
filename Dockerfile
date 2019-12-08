@@ -18,5 +18,3 @@ WORKDIR /code
 
 ENV DJANGO_SETTINGS_MODULE=music_room.settings
 #RUN python manage.py collectstatic
-
-#ENTRYPOINT ["./docker-entrypoint.sh"]
