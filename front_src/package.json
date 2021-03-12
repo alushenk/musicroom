@@ -49,7 +49,7 @@
     "postcss-safe-parser": "4.0.1",
     "react": "^16.8.5",
     "react-app-polyfill": "^0.1.3",
-    "react-dev-utils": "^6.1.1",
+    "react-dev-utils": "^11.0.4",
     "react-dom": "^16.8.5",
     "react-highlight-words": "^0.16.0",
     "react-location-picker": "^1.3.0",
