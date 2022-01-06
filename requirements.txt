@@ -9,7 +9,7 @@ awscli==1.16.147
 billiard==3.6.0.0
 boto3==1.9.130
 botocore==1.12.137
-celery==4.3.0
+celery==5.2.2
 certifi==2019.3.9
 channels==2.2.0
 channels-redis==2.4.0
